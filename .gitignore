@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Quản lí sinh viên/Student.h
+/Quản lí sinh viên/Teacher.h
+/Quản lí sinh viên/Login.cpp
