@@ -18,6 +18,7 @@
 
 using namespace std;
 
+
 struct Date {
 	string dayofweek;
 	int day;
@@ -138,11 +139,10 @@ Course* convertCourseData(ifstream& data);
 void getlistuser();
 User* login(string id, string pass);
 
-void getSchoolYear();
-void creatSchoolYear();
+void createSchoolYear();
 
-bool createDirictory(string path);
-void create_class(string classname);
+
+
 
 extern ListUser listuser;
 extern ListClass listClasses;

@@ -293,13 +293,7 @@ void getInfomationUser() {
 		cout << "\nDate of birth: " << Datetostring(currentUser->brithday);
 	}
 }
-bool createDirictory(string path) {
-	int result = _mkdir(path.c_str());
-	if (result == 0) return true;
-	else return false;
-}
-void getSchoolYear() {
-	getCurrentDate();
+void createSchoolYear() {
 	if (currentDate.month < 9) {
 		currentSchoolYear = to_string(currentDate.year - 1) + "-" + to_string(currentDate.year);
 	}
@@ -307,15 +301,6 @@ void getSchoolYear() {
 		currentSchoolYear = to_string(currentDate.year) + "-" + to_string(currentDate.year + 1);
 	}
 	
-}
-void creatSchoolYear() {
-	getSchoolYear();
-	string path = "./Data/" + currentSchoolYear;
-	createDirictory(path);
-}
-void create_class(string classname) {
-	string path = "./Data/" + currentSchoolYear + "/" + classname;
-	createDirictory(path);
 }
 
 
