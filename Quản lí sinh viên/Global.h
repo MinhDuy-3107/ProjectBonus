@@ -140,7 +140,8 @@ void getlistuser();
 User* login(string id, string pass);
 
 void createSchoolYear();
-
+void create_folder_SchoolYear();
+void createClasses();
 
 
 

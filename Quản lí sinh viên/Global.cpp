@@ -294,6 +294,7 @@ void getInfomationUser() {
 	}
 }
 void createSchoolYear() {
+	getCurrentDate();
 	if (currentDate.month < 9) {
 		currentSchoolYear = to_string(currentDate.year - 1) + "-" + to_string(currentDate.year);
 	}
@@ -303,6 +304,18 @@ void createSchoolYear() {
 	
 }
 
+void create_folder_SchoolYear() {
+	createSchoolYear();
+	string s = "./Data/" + currentSchoolYear;
+	int a=_mkdir(s.c_str());
+}
+void createClasses() {
+	string s;
+	getline(cin, s);
+	string a = "./Data/Classes/" + s+".csv";
+	ofstream out(a);
+	out.close();
+}
 
 
 
