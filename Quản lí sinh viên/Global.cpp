@@ -309,13 +309,13 @@ void create_folder_SchoolYear() {
 	string s = "./Data/" + currentSchoolYear;
 	int a=_mkdir(s.c_str());
 }
-void createClasses(string s) {
-	getline(cin, s);
-	string a = "./Data/Classes/" + s + ".csv";
+void createClasses(string className) {
+	/*getline(cin, className);*/
+	string a = "./Data/Classes/" + className + ".csv";
 	ofstream out(a);
 	out.close();
 	Class* c = new Class;
-	c->ClassName = s;
+	c->ClassName = className;
 	c->next = NULL;
 	c->prev = NULL;
 	addClass(listClasses, c);
@@ -332,9 +332,20 @@ void InputStudent(Student& a) {
 	cout << "\nGender: ";
 	getline(cin, a.gender);
 	cout << "\nBirthday: ";
+	string date = "";
+	getline(cin, date);
+	a.dateOfBirth = strtodate(date);
+	a.next = NULL;
+	a.prev = NULL;
+}
+void writestudent(Student* a,string className) {
+	className = "/Data/Classes/" + className + ".csv";
+	ofstream out(className,ios::app);
+	if (!out.is_open()) return;
+
 
 }
-void addOneStudent(string cl) {
+void findcalss(string cl) {
 	Class* tmp = listClasses.pHead;
 	while (tmp != NULL) {
 		if (tmp->ClassName == cl) break;
@@ -342,6 +353,25 @@ void addOneStudent(string cl) {
 	}
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//giao dien
+
 
 
 
