@@ -114,7 +114,7 @@ void initStudent(ListStudent& l) {
 	l.pHead = l.pTail = NULL;
 	l.size = 0;
 }
-void initClass(ListClasses& l) {
+void initClasses(ListClasses& l) {
 	l.pHead = l.pTail = NULL;
 	l.size = 0;
 }
