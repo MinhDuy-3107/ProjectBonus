@@ -3,7 +3,7 @@
 const string userDataPath = "./Data/Account/User.csv";
 int yPos = 13;
 ListUser listuser;
-ListClass listClasses;
+ListClasses listClasses;
 ListCourse listCourses;
 Semester currentSemester;
 User* currentUser;
@@ -114,7 +114,7 @@ void initStudent(ListStudent& l) {
 	l.pHead = l.pTail = NULL;
 	l.size = 0;
 }
-void initClass(ListClass& l) {
+void initClass(ListClasses& l) {
 	l.pHead = l.pTail = NULL;
 	l.size = 0;
 }
@@ -159,7 +159,7 @@ void addCourse(ListCourse& list, Course* course) {
 	}
 	list.size++;
 }
-void addClass(ListClass& list, Class* c) {
+void addClass(ListClasses& list, Class* c) {
 	if (c == NULL) return;
 		if (list.pHead == NULL) {
 			list.pHead = list.pTail = c;
@@ -309,12 +309,38 @@ void create_folder_SchoolYear() {
 	string s = "./Data/" + currentSchoolYear;
 	int a=_mkdir(s.c_str());
 }
-void createClasses() {
-	string s;
+void createClasses(string s) {
 	getline(cin, s);
-	string a = "./Data/Classes/" + s+".csv";
+	string a = "./Data/Classes/" + s + ".csv";
 	ofstream out(a);
 	out.close();
+	Class* c = new Class;
+	c->ClassName = s;
+	c->next = NULL;
+	c->prev = NULL;
+	addClass(listClasses, c);
+}
+void InputStudent(Student& a) {
+	cout << "\nLast name: ";
+	getline(cin, a.lastName);
+	cout << "\nFirst name: ";
+	getline(cin, a.firstName);
+	cout << "\nStudent ID: ";
+	getline(cin, a.studentID);
+	cout << "\nSocial ID: ";
+	getline(cin, a.socialID);
+	cout << "\nGender: ";
+	getline(cin, a.gender);
+	cout << "\nBirthday: ";
+
+}
+void addOneStudent(string cl) {
+	Class* tmp = listClasses.pHead;
+	while (tmp != NULL) {
+		if (tmp->ClassName == cl) break;
+		tmp = tmp->next;
+	}
+
 }
 
 

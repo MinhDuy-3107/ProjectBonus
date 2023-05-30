@@ -105,7 +105,7 @@ struct Class{
 	Class* next;
 	Class* prev;
 };
-struct ListClass{
+struct ListClasses{
 	Class* pHead;
 	Class* pTail;
 	int size;
@@ -123,7 +123,7 @@ void getCurrentDate();
 
 void initUser(ListUser& l);
 void initStudent(ListStudent& l);
-void initClass(ListClass& l);
+void initClasses(ListClasses& l);
 void addUser(ListUser& list, User* user);
 void addStudent(ListStudent& list, Student* student);
 void addCourse(ListCourse& list, Course* course);
@@ -146,7 +146,7 @@ void createClasses();
 
 
 extern ListUser listuser;
-extern ListClass listClasses;
+extern ListClasses listClasses;
 extern ListCourse listCourses;
 extern Semester currentSemester;
 extern User* currentUser;
