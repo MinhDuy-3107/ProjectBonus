@@ -100,24 +100,26 @@ void XoaManHinh()
 	SetConsoleCursorPosition(hOut, Position);
 }
 void drawBox(int width, int height, int left, int top) {
-	gotoXY(left, top);
+	gotoXY(top,left);
 	cout << char(201);
 	for (int i = 0; i < width; i++) {
+		gotoXY(top,left+i+1);
 		cout << char(205);
 	}
 	cout << char(187);
 	for (int i = top + 1; i < height + top; i++) {
-		gotoXY(left, i);
+		gotoXY(i,left);
 		cout << char(186);
 	}
-	gotoXY(left, height + top);
+	gotoXY(top+height, left);
 	cout << char(200);
 	for (int i = 0; i < width; i++) {
+		gotoXY(top + height, left + i + 1);
 		cout << char(205);
 	}
 	cout << char(188);
 	for (int i = height + top - 1; i > top; i--) {
-		gotoXY(left + width + 1, i);
+		gotoXY(i, left + width + 1);
 		cout << char(186);
 	}
 }
