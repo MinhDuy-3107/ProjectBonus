@@ -3,9 +3,15 @@
 
 
 int main() {
-	resizeConsole(50, 10);
-	gotoXY(5, 5); cout << "haha";
-	/*gotoXY(10, 10); cout << "hihi";
-	drawBox(20, 3, 3, 4);
-	gotoXY(25, 15); cout << "jiji";*/
+	ListCourse l;
+	initCourse(l);
+	Course* a = Inputcourse();
+	addCourse(l, a);
+	Course* b = Inputcourse();
+	addCourse(l, b);
+	create_semester(2);
+	create_folder_course();
+	List_Courses(l);
+
+	
 }

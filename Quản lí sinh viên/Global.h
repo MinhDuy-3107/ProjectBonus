@@ -48,12 +48,13 @@ struct Course {
 	string ID;
 	string coursename;
 	string teachername;
+	string classname;
 	int credits;
 	int maxstudents = 50;
 	int numberregistered = 0;
 	int academicyear;
 	string dayofweek;
-	string session[3];
+	string session;
 	Course* prev;
 	Course* next;
 };
@@ -124,6 +125,7 @@ void getCurrentDate();
 void initUser(ListUser& l);
 void initStudent(ListStudent& l);
 void initClasses(ListClasses& l);
+void initCourse(ListCourse& l);
 void addUser(ListUser& list, User* user);
 void addStudent(ListStudent& list, Student* student);
 void addCourse(ListCourse& list, Course* course);
@@ -141,7 +143,19 @@ User* login(string id, string pass);
 
 void createSchoolYear();
 void create_folder_SchoolYear();
-void createClasses();
+void createClasses(string lassName);
+Student* InputStudent();
+void Copyfile(string a, string b);
+void writestudent(ListStudent& list, string className);
+
+
+void create_semester(int a);
+Course* Inputcourse();
+void write_course(ListCourse l);
+void create_folder_course();
+void List_Courses(ListCourse l);
+
+
 
 
 

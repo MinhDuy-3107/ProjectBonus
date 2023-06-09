@@ -62,7 +62,7 @@ string Datetostring(Date a) {
 	date += "/";
 	if (a.month < 10) date += "0";
 	date += to_string(a.month) + "/";
-	date += a.year;
+	date += to_string(a.year);
 	return date;
 }
 
@@ -310,7 +310,7 @@ void create_folder_SchoolYear() {
 	int a=_mkdir(s.c_str());
 }
 void createClasses(string className) {
-	/*getline(cin, className);*/
+	
 	string a = "./Data/Classes/" + className + ".csv";
 	ofstream out(a);
 	out.close();
@@ -320,39 +320,127 @@ void createClasses(string className) {
 	c->prev = NULL;
 	addClass(listClasses, c);
 }
-void InputStudent(Student& a) {
+Student* InputStudent() {
+	Student *a = new Student;
 	cout << "\nLast name: ";
-	getline(cin, a.lastName);
+	getline(cin, a->lastName);
 	cout << "\nFirst name: ";
-	getline(cin, a.firstName);
+	getline(cin, a->firstName);
 	cout << "\nStudent ID: ";
-	getline(cin, a.studentID);
+	getline(cin, a->studentID);
 	cout << "\nSocial ID: ";
-	getline(cin, a.socialID);
+	getline(cin, a->socialID);
 	cout << "\nGender: ";
-	getline(cin, a.gender);
+	getline(cin, a->gender);
 	cout << "\nBirthday: ";
 	string date = "";
 	getline(cin, date);
-	a.dateOfBirth = strtodate(date);
-	a.next = NULL;
-	a.prev = NULL;
+	a->dateOfBirth = strtodate(date);
+	a->next = NULL;
+	a->prev = NULL;
+	
+	return a;
 }
-void writestudent(Student* a,string className) {
-	className = "/Data/Classes/" + className + ".csv";
-	ofstream out(className,ios::app);
+void Copyfile(string a, string b) {
+	char c;
+	ifstream in(a);
+	ofstream out(b);
+	while (in.get(c)) {
+		out << c;
+	}
+	in.close();
+	out.close();
+}
+void writestudent(ListStudent& list,string className) {
+	string a = "./Data/Classes/" + className + ".csv";
+	ofstream out(a,ios::out);
 	if (!out.is_open()) return;
-
-
-}
-void findcalss(string cl) {
-	Class* tmp = listClasses.pHead;
+	list.className = className;
+	Student* tmp = list.pHead;
+	int stt = 1;
+	out << "No,Student ID,Last name,First name,Gender,Date of Birth,Social ID,Academic year" << endl;
 	while (tmp != NULL) {
-		if (tmp->ClassName == cl) break;
+		out << stt << ",";
+		stt++;
+		out << tmp->studentID << ",";
+		out << tmp->lastName << ",";
+		out << tmp->firstName << ",";
+		out << tmp->gender << ",";
+		string date = Datetostring(tmp->dateOfBirth);
+		out << date << ",";
+		out << tmp->socialID;
+		out << endl;
 		tmp = tmp->next;
 	}
+	out.close();
 
 }
+void create_semester(int a) {
+	createSchoolYear();
+	
+	semesterPath = "./Data/" + currentSchoolYear + "/Semester " + to_string(a);
+	int b=_mkdir(semesterPath.c_str());
+}
+void create_folder_course() {
+	string course = semesterPath + "/Courses";
+	int a = _mkdir(course.c_str());
+}
+Course* Inputcourse() {
+	Course* c = new Course;
+	cout << "\nCourse Name: ";
+	getline(cin, c->coursename);
+	cout << "\nCredit: ";
+	cin >> c->credits;
+	cin.ignore();
+	cout << "\nCourse ID: ";
+	getline(cin, c->ID);
+	cout << "\nClass Name: ";
+	getline(cin, c->classname);
+	cout << "Teacher Name: ";
+	getline(cin, c->teachername);
+	cout << "\nDay of week: ";
+	getline(cin, c->dayofweek);
+	cout << "\nSession: ";
+	getline(cin, c->session);
+	return c;
+}
+void write_course(ListCourse l) {
+	string course = semesterPath + "/Course.csv";
+	ofstream out(course, ios::out);
+	out << "ID,Course Name,Teacher Name,Credits,Class Name,Day of week,Session" << endl;
+	Course* tmp = l.pHead;
+	while (tmp != NULL) {
+		out << tmp->ID << ",";
+		out << tmp->coursename << ",";
+		out << tmp->teachername << ",";
+		out << tmp->credits << ",";
+		out << tmp->classname << ",";
+		out << tmp->dayofweek << ",";
+		out << tmp->session << endl;
+		tmp = tmp->next;
+	}
+	out.close();
+}
+void List_Courses(ListCourse l) {
+	Course* tmp = l.pHead;
+	
+	while (tmp != NULL) {
+		string a = semesterPath + "/Courses/" + tmp->ID + ".csv";
+		ofstream out(a, ios::out);
+		out.close();
+		tmp = tmp->next;
+	}
+}
+void Display_Course(ListCourse l) {
+	Course* tmp = l.pHead;
+	
+	while (tmp != NULL) {
+		cout << tmp->coursename << "\t" << tmp->classname;
+		tmp = tmp->next;
+	}
+}
+
+
 
 
 
