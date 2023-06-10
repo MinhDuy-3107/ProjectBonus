@@ -13,6 +13,7 @@
 #include <io.h>
 #include <filesystem>
 #include <sstream>
+#include <cwchar>
 
 
 
@@ -49,6 +50,7 @@ struct Course {
 	string coursename;
 	string teachername;
 	string classname;
+	ListStudent l;
 	int credits;
 	int maxstudents = 50;
 	int numberregistered = 0;
@@ -156,7 +158,7 @@ void create_folder_course();
 void List_Courses(ListCourse l);
 
 
-
+void LoginSystem();
 
 
 extern ListUser listuser;

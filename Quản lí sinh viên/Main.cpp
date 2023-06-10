@@ -3,15 +3,15 @@
 
 
 int main() {
-	ListCourse l;
-	initCourse(l);
-	Course* a = Inputcourse();
-	addCourse(l, a);
-	Course* b = Inputcourse();
-	addCourse(l, b);
 	create_semester(2);
-	create_folder_course();
-	List_Courses(l);
+	initCourse(listCourses);
+	Course* a = Inputcourse();
+	addCourse(listCourses, a);
+	Course* b = Inputcourse();
+	addCourse(listCourses, b);
+	
+	List_Courses(listCourses);
+
 
 	
 }

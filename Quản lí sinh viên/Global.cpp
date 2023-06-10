@@ -242,9 +242,22 @@ User* convertUserData(ifstream& data) {
 	Data->prev = NULL;
 	return Data;
 }
-//Student* convertStudentData(ifstream& data) {
-//
-//}
+Student* convertStudentData(ifstream& data) {
+	Student* newStudent = new Student;
+	string s, dateOfBirth;
+	getline(data, s, ',');
+	if (s == "") return NULL;
+	getline(data, newStudent->studentID, ',');
+	getline(data, newStudent->lastName, ',');
+	getline(data, newStudent->firstName, ',');
+	getline(data, newStudent->gender, ',');
+	getline(data, dateOfBirth, ',');
+	newStudent->dateOfBirth = strtodate(dateOfBirth);
+	getline(data, newStudent->socialID, '\n');
+	newStudent->next = NULL;
+	newStudent->prev = NULL;
+	return newStudent;
+}
 //Course* convertCourseData(ifstream& data) {
 //
 //}
@@ -358,7 +371,7 @@ void writestudent(ListStudent& list,string className) {
 	list.className = className;
 	Student* tmp = list.pHead;
 	int stt = 1;
-	out << "No,Student ID,Last name,First name,Gender,Date of Birth,Social ID,Academic year" << endl;
+	out << "No,Student ID,Last name,First name,Gender,Date of Birth,Social ID" << endl;
 	while (tmp != NULL) {
 		out << stt << ",";
 		stt++;
@@ -439,6 +452,103 @@ void Display_Course(ListCourse l) {
 		tmp = tmp->next;
 	}
 }
+void add_student_to_course(Student *a,string CourseId) {
+	Course* tmp = listCourses.pHead;
+	while (tmp != NULL) {
+		if (tmp->ID == CourseId) {
+			break;
+		}
+		tmp = tmp->next;
+	}
+	ListStudent b;
+	
+	string name = semesterPath + "/Courses/" + CourseId + ".csv";
+	ifstream fin;
+	fin.open(name, ios::in);
+	string temp;
+	getline(fin, temp);
+	initStudent(tmp->l);
+	while (!fin.eof()) {
+		addStudent(tmp->l, convertStudentData(fin));
+	}
+	fin.close();
+	addStudent(tmp->l, a);
+	
+	ofstream out(name, ios::out);
+	if (!out.is_open()) return;
+	
+	Student* tmp1 = tmp->l.pHead;
+	int stt = 1;
+	out << "No,Student ID,Last name,First name,Gender,Date of Birth,Social ID" << endl;
+	while (tmp1 != NULL) {
+		out << stt << ",";
+		stt++;
+		out << tmp1->studentID << ",";
+		out << tmp1->lastName << ",";
+		out << tmp1->firstName << ",";
+		out << tmp1->gender << ",";
+		string date = Datetostring(tmp1->dateOfBirth);
+		out << date << ",";
+		out << tmp1->socialID;
+		out << endl;
+		tmp1 = tmp1->next;
+	}
+	out.close();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -459,7 +569,30 @@ void Display_Course(ListCourse l) {
 
 
 //giao dien
+void LoginSystem() {
+	getlistuser();
+	drawBox(20, 3, 47, 4);
+	gotoXY(5, 55);
+	cout << "LOGIN";
+	gotoXY(10, 35);
+	cout << "User:  ";
+	gotoXY(12, 35);
+	cout << "Password:  ";
+	gotoXY(10, 9 + 35);
+	getline(cin, id);
+	gotoXY(12, 12 + 35);
 
+	getline(cin, pass);
+
+	currentUser = login(id, pass);
+	gotoXY(14, 45);
+	if (currentUser == NULL) {
+		cout << "Login fail!";
+	}
+	else {
+		cout << "Login success!";
+	}
+}
 
 
 
