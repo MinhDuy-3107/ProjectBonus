@@ -45,27 +45,8 @@ struct ListUser{
 	User* pTail;
 	int sz;
 };
-struct Course {
-	string ID;
-	string coursename;
-	string teachername;
-	string classname;
-	ListStudent l;
-	int credits;
-	int maxstudents = 50;
-	int numberregistered = 0;
-	int academicyear;
-	string dayofweek;
-	string session;
-	Course* prev;
-	Course* next;
-};
-struct ListCourse{
-	Course * pHead;
-	Course* pTail;
-	Date start, end;
-	int size;
-};
+
+
 struct CourseMark {
 	float MidMark;
 	float FinalMark;
@@ -88,7 +69,7 @@ struct Student {
 	string socialID;
 	Date dateOfBirth;
 	int academicYear;
-	ListCourse enrolledCourses;
+	//ListCourse enrolledCourses;
 	CourseMark courseMark;
 	semesterMark semesterMark;
 	Student* prev;
@@ -111,6 +92,27 @@ struct Class{
 struct ListClasses{
 	Class* pHead;
 	Class* pTail;
+	int size;
+};
+struct Course {
+	string ID;
+	string coursename;
+	string teachername;
+	string classname;
+	ListStudent l;
+	int credits;
+	int maxstudents = 50;
+	int numberregistered = 0;
+	int academicyear;
+	string dayofweek;
+	string session;
+	Course* prev;
+	Course* next;
+};
+struct ListCourse {
+	Course* pHead;
+	Course* pTail;
+	Date start, end;
 	int size;
 };
 
@@ -156,6 +158,10 @@ Course* Inputcourse();
 void write_course(ListCourse l);
 void create_folder_course();
 void List_Courses(ListCourse l);
+void Display_Course(ListCourse l);
+void add_student_to_course(Student* a, string CourseId);
+void remove_student_to_course(string id, string CourseId);
+void remove_course(string Courseid);
 
 
 void LoginSystem();

@@ -150,7 +150,6 @@ void addCourse(ListCourse& list, Course* course) {
 		if (course == NULL) return;
 	if (list.pHead == NULL) {
 		list.pHead = list.pTail = course;
-		course->prev = NULL;
 	}
 	else {
 		list.pTail->next = course;
@@ -415,6 +414,8 @@ Course* Inputcourse() {
 	getline(cin, c->dayofweek);
 	cout << "\nSession: ";
 	getline(cin, c->session);
+	c->next = NULL;
+	c->prev = NULL;
 	return c;
 }
 void write_course(ListCourse l) {
@@ -433,6 +434,7 @@ void write_course(ListCourse l) {
 		tmp = tmp->next;
 	}
 	out.close();
+	delete tmp;
 }
 void List_Courses(ListCourse l) {
 	Course* tmp = l.pHead;
@@ -460,7 +462,6 @@ void add_student_to_course(Student *a,string CourseId) {
 		}
 		tmp = tmp->next;
 	}
-	ListStudent b;
 	
 	string name = semesterPath + "/Courses/" + CourseId + ".csv";
 	ifstream fin;
@@ -495,6 +496,68 @@ void add_student_to_course(Student *a,string CourseId) {
 	}
 	out.close();
 }
+void remove_student_to_course(string id, string CourseId) {
+	Course* tmp = listCourses.pHead;
+	while (tmp != NULL) {
+		if (tmp->ID == CourseId) {
+			break;
+		}
+		tmp = tmp->next;
+	}
+
+	string name = semesterPath + "/Courses/" + CourseId + ".csv";
+	ifstream fin;
+	fin.open(name, ios::in);
+	string temp;
+	getline(fin, temp);
+	initStudent(tmp->l);
+	while (!fin.eof()) {
+		addStudent(tmp->l, convertStudentData(fin));
+	}
+	fin.close();
+	Student* tm = tmp->l.pHead;
+	while (tm != NULL) {
+		if (tm->studentID == id) break;
+		tm = tm->next;
+	}
+	removeStudent(tmp->l, tm);
+
+	ofstream out(name, ios::out);
+	if (!out.is_open()) return;
+
+	Student* tmp1 = tmp->l.pHead;
+	int stt = 1;
+	out << "No,Student ID,Last name,First name,Gender,Date of Birth,Social ID" << endl;
+	while (tmp1 != NULL) {
+		out << stt << ",";
+		stt++;
+		out << tmp1->studentID << ",";
+		out << tmp1->lastName << ",";
+		out << tmp1->firstName << ",";
+		out << tmp1->gender << ",";
+		string date = Datetostring(tmp1->dateOfBirth);
+		out << date << ",";
+		out << tmp1->socialID;
+		out << endl;
+		tmp1 = tmp1->next;
+	}
+	out.close();
+}
+void remove_course(string Courseid) {
+	Course* tm = listCourses.pHead;
+	string course;
+	while (tm != NULL) {
+		if (tm->ID == Courseid) {
+			 course= semesterPath + "/Courses/" + Courseid + ".csv";
+			removeCourse(listCourses, tm); 
+			break;
+		}
+		tm = tm->next;
+	}
+	write_course(listCourses);
+	int a = remove(course.c_str());
+}
+
 
 
 
@@ -570,28 +633,71 @@ void add_student_to_course(Student *a,string CourseId) {
 
 //giao dien
 void LoginSystem() {
-	getlistuser();
-	drawBox(20, 3, 47, 4);
-	gotoXY(5, 55);
-	cout << "LOGIN";
-	gotoXY(10, 35);
-	cout << "User:  ";
-	gotoXY(12, 35);
+	gotoXY(5, 11);
+	cout << ".----------------.  .----------------.  .----------------.  .----------------.  .---------------- - ." << endl;
+	gotoXY(6, 11);
+	cout << "| .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |" << endl;
+	gotoXY(7, 11);
+	cout << "| |   _____      | || |     ____     | || |    ______    | || |     _____    | || | ____  _____  | |" << endl;
+	gotoXY(8, 11);
+	cout << "| |  |_   _|     | || |   .'    `.   | || |  .' ___  |   | || |    |_   _|   | || ||_   \\ | _ _| | |" << endl;
+	gotoXY(9, 11);
+	cout << "| |    | |       | || |  /  .--.  \\  | || | / .'   \\_|   | || |      | |     | || |  |   \\ | |   | |" << endl;
+	gotoXY(10, 11);
+	cout << "| |    | |   _   | || |  | |    | |  | || | | |    ____  | || |      | |     | || |  | |\\ \\| |   | |" << endl;
+	gotoXY(11, 11);
+	cout << "| |   _| |__/ |  | || |  \\ `- - ' /  | || | \\ `.___]  _| | || |     _| |_    | || | _| |_\\   |_  | |" << endl;
+	gotoXY(12, 11);
+	cout << "| |  |________|  | || |   `.____.'   | || |  `._____.'   | || |    |_____|   | || ||_____|\\____| | |" << endl;
+	gotoXY(13, 11);
+	cout << "| |              | || |              | || |              | || |              | || |              | |" << endl;
+	gotoXY(14, 11);
+	cout << "| '--------------' || '--------------' || '--------------' || '--------------' || '--------------' |" << endl;
+	gotoXY(15, 11);
+	cout << "'----------------'  '----------------'  '----------------'  '----------------'  '----------------'" << endl;
+	gotoXY(20, 30);
+	cout << "ID:   ";
+	gotoXY(22, 30);
 	cout << "Password:  ";
-	gotoXY(10, 9 + 35);
+	gotoXY(20, 34);
 	getline(cin, id);
-	gotoXY(12, 12 + 35);
-
+	gotoXY(22, 41);
 	getline(cin, pass);
-
+	getlistuser();
 	currentUser = login(id, pass);
-	gotoXY(14, 45);
 	if (currentUser == NULL) {
-		cout << "Login fail!";
+		gotoXY(24, 35);
+		cout << "Login Fail!!";
 	}
 	else {
-		cout << "Login success!";
+		gotoXY(24, 35);
+		cout << "Login Success!!";
 	}
+}
+void StaffMenu() {
+	gotoXY(3, 20);
+	cout << " _______  _______  _______  _______  _______    __   __  _______  __    _  __   __" << endl;
+	gotoXY(4, 20);
+	cout << "|       ||       ||   _   ||       ||       |  |  |_|  ||       ||  |  | ||  | |  |" << endl;
+	gotoXY(5, 20);
+	cout << "|  _____|| _    _||  |_|  ||    ___||    ___|  |       ||    ___||   |_| ||  | |  |" << endl;
+	gotoXY(6, 20);
+	cout << "| |_____   |   |  |       ||   |___ |   |___   |       ||   |___ |       ||  |_|  |" << endl;
+	gotoXY(7, 20);
+	cout << "|_____  |  |   |  |       ||    ___||    ___|  |       ||    ___ |  _    ||       |" << endl;
+	gotoXY(8, 20);
+	cout << " _____| |  |   |  |   _   ||   |    |   |      | ||_|| ||   |___ | | |   ||       |" << endl;
+	gotoXY(9, 20);
+	cout << "|_______|  |___|  |__| |__||___|    |___|      |_|   |_||_______||_|  |__||_______|" << endl;
+
+	gotoXY(13, 50);
+	cout << "User Account";
+	gotoXY(14, 50);
+	cout << "Profile";
+	gotoXY(15, 50);
+	cout << "Manage Student";
+	gotoXY(16, 50);
+	cout << "Manage Course";
 }
 
 
