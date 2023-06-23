@@ -1,6 +1,8 @@
 #include"Global.h"
 #include"ConsoleScreen.h"
 const string userDataPath = "./Data/Account/User.csv";
+const char cursorLeft = char(175);
+const char cursorRight = char(174);
 int yPos = 13;
 ListUser listuser;
 ListClasses listClasses;
@@ -215,6 +217,29 @@ void removeCourse(ListCourse& list, Course* course) {
 	}
 	list.size--;
 }
+User* toUser(Student* student, string className) {
+	User* user = new User;
+	user->ID = student->studentID;
+	user->password = student->socialID;
+	user->lastname = student->lastName;
+	user->firstname = student->firstName;
+	user->classname = className;
+	user->gender = student->gender;
+	user->brithday = student->dateOfBirth;
+	user->academicyear = student->academicYear;
+	user->isteacher = false;
+	user->prev = NULL;
+	user->next = NULL;
+	return user;
+}
+//void addStudentAccount(ListStudent listStudent) {
+//	Student* temp = listStudent.pHead;
+//	while (temp != NULL) {
+//		addUser(listuser, toUser(temp, listStudent.className));
+//		temp = temp->next;
+//	}
+//	saveListUser();
+//}
 
 //doc danh sách
 User* convertUserData(ifstream& data) {
@@ -257,9 +282,74 @@ Student* convertStudentData(ifstream& data) {
 	newStudent->prev = NULL;
 	return newStudent;
 }
-//Course* convertCourseData(ifstream& data) {
-//
-//}
+Course* convertCourseData(ifstream& data) {
+	Course* course = new Course;
+	string credits;
+	getline(data, course->ID, ',');
+	if (course->ID == "") return NULL;
+	getline(data, course->coursename, ',');
+	getline(data, course->teachername, ',');
+	getline(data, credits, ',');
+	course->credits = stoi(credits);
+	getline(data, course->classname, ',');
+	getline(data, course->dayofweek, ',');
+	getline(data, course->session, ',');
+	initStudent(course->l);
+	course->prev = NULL;
+	course->next = NULL;
+	return course;
+}
+
+void saveListUser() {
+	ofstream fout(userDataPath);
+	fout << "ID,Password,Last name,First name,Class,Gender,Date of Birth,Academic year,Staff" << endl;
+	User* curr = listuser.pHead;
+	while (curr != NULL) {
+		string dateOfBirth = to_string(curr->brithday.day) + "/" + to_string(curr->brithday.month) + "/" + to_string(curr->brithday.year);
+		fout << curr->ID<< "," << curr->password << "," << curr->lastname << "," << curr->firstname
+			<< "," << curr->classname << "," << curr->gender << "," << dateOfBirth << "," << to_string(curr->academicyear) << ",";
+		if (curr->isteacher) fout << "TRUE";
+		else fout << "FALSE";
+		curr = curr->next;
+		if (curr != NULL) fout << endl;
+	}
+	fout.close();
+}
+
+
+void getListCourses() {
+	ifstream fin(semesterPath + "/courses.csv");
+	initCourse(listCourses);
+	if (!fin) return;
+	string s;
+	getline(fin, s);
+	while (!fin.eof()) {
+		addCourse(listCourses, convertCourseData(fin));
+	}
+	Course* tmp = listCourses.pHead;
+	while (tmp != NULL) {
+		string a = semesterPath + "/Courses/" + tmp->ID + ".csv";
+		ifstream in(a);
+		getline(in, s);
+		while (!in.eof()) {
+			addStudent(tmp->l, convertStudentData(in));
+		}
+	}
+}
+void getListClasses() {
+	initClasses(listClasses);
+	string path = "./Data/Classes.csv";
+	ifstream in(path);
+	while (!in.eof()) {
+		string a = "";
+		getline(in, a);
+		Class* tm = new Class;
+		tm->ClassName = a;
+		tm->next = NULL;
+		tm->prev = NULL;
+	}
+	in.close();
+}
 
 
 
@@ -286,6 +376,9 @@ User* login(string id, string pass) {
 		else tmp = tmp->next;;
 	}
 	return NULL;
+}
+void logout() {
+	currentUser == NULL;
 }
 //Giao vu
 void getInfomationUser() {
@@ -322,7 +415,9 @@ void create_folder_SchoolYear() {
 	int a=_mkdir(s.c_str());
 }
 void createClasses(string className) {
-	
+	string b = "./Data/Classes.csv";
+	ofstream ou(b);
+
 	string a = "./Data/Classes/" + className + ".csv";
 	ofstream out(a);
 	out.close();
@@ -331,6 +426,11 @@ void createClasses(string className) {
 	c->next = NULL;
 	c->prev = NULL;
 	addClass(listClasses, c);
+	Class* tmp = listClasses.pHead;
+	while (tmp != NULL) {
+		ou << tmp->ClassName << endl;
+		tmp = tmp->next;
+	}
 }
 Student* InputStudent() {
 	Student *a = new Student;
@@ -496,7 +596,7 @@ void add_student_to_course(Student *a,string CourseId) {
 	}
 	out.close();
 }
-void remove_student_to_course(string id, string CourseId) {
+void remove_student_from_course(string id, string CourseId) {
 	Course* tmp = listCourses.pHead;
 	while (tmp != NULL) {
 		if (tmp->ID == CourseId) {
@@ -557,6 +657,27 @@ void remove_course(string Courseid) {
 	write_course(listCourses);
 	int a = remove(course.c_str());
 }
+ListCourse Student_Display() {
+	Course* tmp = listCourses.pHead;
+	ListCourse list;
+	initCourse(list);
+	//initCourse(currentUser->list);
+	while (tmp != NULL) {
+		Student* tm = tmp->l.pHead;
+		while (tm != NULL) {
+			if (currentUser->ID == tm->studentID) {
+				addCourse(list, tmp);
+			}
+			tm = tm->next;
+		}
+		tmp = tmp->next;
+	}
+	return list;
+}
+void Mark() {
+
+}
+
 
 
 
@@ -632,7 +753,70 @@ void remove_course(string Courseid) {
 
 
 //giao dien
+int command(int&, int, int, function<int(int)>);
+int generalOption(int curPos);
+
+void UserAccount();
+
+
+int staffOption(int curPos);
+int userAccountOption(int curPos);
+
+
+void StaffMenu() {
+	const int width = 42;
+	const int height = 7;
+	const int left = 40;
+	const int top = 12;
+	int curPos = 0;
+	int x = 13;
+	do {
+		resizeConsole(50, 100);
+		ShowCur(0);
+		system("cls");
+		gotoXY(3, 20);
+		cout << " _______  _______  _______  _______  _______    __   __  _______  __    _  __   __" << endl;
+		gotoXY(4, 20);
+		cout << "|       ||       ||   _   ||       ||       |  |  |_|  ||       ||  |  | ||  | |  |" << endl;
+		gotoXY(5, 20);
+		cout << "|  _____|| _    _||  |_|  ||    ___||    ___|  |       ||    ___||   |_| ||  | |  |" << endl;
+		gotoXY(6, 20);
+		cout << "| |_____   |   |  |       ||   |___ |   |___   |       ||   |___ |       ||  |_|  |" << endl;
+		gotoXY(7, 20);
+		cout << "|_____  |  |   |  |       ||    ___||    ___|  |       ||    ___ |  _    ||       |" << endl;
+		gotoXY(8, 20);
+		cout << " _____| |  |   |  |   _   ||   |    |   |      | ||_|| ||   |___ | | |   ||       |" << endl;
+		gotoXY(9, 20);
+		cout << "|_______|  |___|  |__| |__||___|    |___|      |_|   |_||_______||_|  |__||_______|" << endl;
+		drawBox(width, height, left, top);
+		gotoXY(x, 50);
+		x++;
+		cout << "User Account";
+		gotoXY(x, 50);
+		x++;
+		cout << "Profile";
+		gotoXY(x, 50);
+		x++;
+		cout << "Manage Student";
+		gotoXY(x, 50);
+		x++;
+		x++;
+		cout << "Manage Course";
+		gotoXY(x, 50);
+		cout << "Exit";
+		x = 13;
+		if (curPos == 4) x++;
+		gotoXY(x + curPos, 45);
+		cout << (char)175;
+		x = 13;
+	} while (command(curPos, 0, 4, staffOption));
+}
+
+
+
+
 void LoginSystem() {
+	
 	gotoXY(5, 11);
 	cout << ".----------------.  .----------------.  .----------------.  .----------------.  .---------------- - ." << endl;
 	gotoXY(6, 11);
@@ -668,37 +852,285 @@ void LoginSystem() {
 	if (currentUser == NULL) {
 		gotoXY(24, 35);
 		cout << "Login Fail!!";
+		exit(0);
 	}
 	else {
 		gotoXY(24, 35);
 		cout << "Login Success!!";
+		if (currentUser->isteacher) {
+			system("cls");
+			StaffMenu();
+		}
+		else {
+			system("cls");
+		}
 	}
 }
-void StaffMenu() {
-	gotoXY(3, 20);
-	cout << " _______  _______  _______  _______  _______    __   __  _______  __    _  __   __" << endl;
-	gotoXY(4, 20);
-	cout << "|       ||       ||   _   ||       ||       |  |  |_|  ||       ||  |  | ||  | |  |" << endl;
-	gotoXY(5, 20);
-	cout << "|  _____|| _    _||  |_|  ||    ___||    ___|  |       ||    ___||   |_| ||  | |  |" << endl;
-	gotoXY(6, 20);
-	cout << "| |_____   |   |  |       ||   |___ |   |___   |       ||   |___ |       ||  |_|  |" << endl;
-	gotoXY(7, 20);
-	cout << "|_____  |  |   |  |       ||    ___||    ___|  |       ||    ___ |  _    ||       |" << endl;
-	gotoXY(8, 20);
-	cout << " _____| |  |   |  |   _   ||   |    |   |      | ||_|| ||   |___ | | |   ||       |" << endl;
-	gotoXY(9, 20);
-	cout << "|_______|  |___|  |__| |__||___|    |___|      |_|   |_||_______||_|  |__||_______|" << endl;
 
-	gotoXY(13, 50);
-	cout << "User Account";
-	gotoXY(14, 50);
-	cout << "Profile";
-	gotoXY(15, 50);
-	cout << "Manage Student";
-	gotoXY(16, 50);
-	cout << "Manage Course";
+
+void changePassword() {
+	const int width = 42;
+	const int height = 7;
+	const int left = 40;
+	const int top = 10;
+	int curPos = 0;
+	int yPos = 13;
+	string currentPassword;
+
+	ShowCur(1);
+	do {
+		system("cls");
+		gotoXY(9,55); cout << "HCMUS Portal";
+		gotoXY(7,53); cout << "Change Password";
+		drawBox(width, height, left, top);
+		gotoXY(yPos,45); cout << "Current password: ";
+		yPos++;
+		yPos++;
+		getline(cin, currentPassword);
+		if (currentPassword == currentUser->password) {
+			gotoXY(yPos,45); cout << "New password: ";
+			yPos++;
+			getline(cin, currentUser->password);
+			ShowCur(0);
+			saveListUser();
+			return;
+		}
+		else {
+			gotoXY(15,45); cout << "Wrong password";
+			gotoXY(16,45); cout << "Enter to try again...";
+			gotoXY(17, 45); cout << "Esc to back...";
+			int key = _getch();
+			if (key == 27) {
+				ShowCur(0);
+				return;
+			}
+		}
+		yPos = 13;
+	} while (true);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void UserAccount() {
+	const int width = 40;
+	const int height = 7;
+	const int left = 40;
+	const int top = 8;
+	int curPos = 0;
+	int yPos = 10;
+	do {
+		system("cls");
+		drawBox(width, height, left, top);
+		gotoXY(5,55); cout << "HCMUS Portal";
+		gotoXY(7,55); cout << "User Account";
+		gotoXY(yPos, 52); cout << "Change Password";
+		yPos++;
+		gotoXY(yPos,52); cout << "Logout";
+		yPos++;
+		yPos++;
+		gotoXY(yPos,52); cout << "Back";
+		yPos = 10;
+		if (curPos == 2) yPos++;
+		gotoXY(curPos + yPos,45); cout << cursorLeft;
+		yPos = 10;
+	} while (command(curPos, 0, 2, userAccountOption));
+}
+void Profile() {
+	const int width = 40;
+	const int height = 10;
+	const int left = 40;
+	const int top = 8;
+
+	int curPos = 0;
+	int yPos = 10;
+	Date dateOfBirth = currentUser->brithday;
+	do {
+		system("cls");
+		gotoXY(yPos - 4,55); cout << "HCMUS Portal";
+		gotoXY( yPos - 2,57); cout << "Profile";
+		drawBox(width, height, left, top);
+		gotoXY( yPos,48); cout << "Last name: " << currentUser->lastname;
+		yPos++;
+		gotoXY(yPos,48); cout << "First name: " << currentUser->firstname;
+		yPos++;
+		gotoXY(yPos,48); cout << "Gender: " << currentUser->gender;
+		yPos++;
+		if (!currentUser->isteacher) {
+			gotoXY(yPos,48); cout << "Class: " << currentUser->classname;
+			yPos++;
+			gotoXY(yPos,48); cout << "Student ID: " << currentUser->ID;
+			yPos++;
+		}
+		else {
+			gotoXY(yPos,48); cout << "Staff ID: " << currentUser->ID;
+			yPos++;
+		}
+		gotoXY(yPos,48); cout << "Date of Birth: " << dateOfBirth.day << '/' << dateOfBirth.month << '/' << dateOfBirth.year;
+		yPos += 2;
+		gotoXY( yPos,60); cout << "Back";
+		gotoXY( curPos + yPos,58); cout << cursorLeft;
+		//gotoXY(65, curPos + yPos); cout << cursorRight;
+		yPos = 10;
+	} while (command(curPos, 0, 0, generalOption));
+
+}
+void ManageStudent() {
+	const int width = 40;
+	const int height = 7;
+	const int left = 40;
+	const int top = 8;
+	int curPos = 0;
+	int yPos = 10;
+	do {
+		system("cls");
+		drawBox(width, height, left, top);
+		gotoXY(5, 55); cout << "HCMUS Portal";
+		gotoXY(7, 55); cout << "Manage Student";
+		gotoXY(yPos, 52); cout << "Create New School Year";
+		yPos++;
+		gotoXY(yPos, 52); cout << "Create New Class";
+		yPos++;
+		gotoXY(yPos, 52); cout << "List of Class";
+		yPos++;
+		gotoXY(yPos, 52); cout << "Student of Class";
+		yPos++;
+		yPos++;
+		gotoXY(yPos, 52); cout << "Back";
+		yPos = 10;
+		if (curPos == 2) yPos++;
+		gotoXY(curPos + yPos, 45); cout << cursorLeft;
+		yPos = 10;
+	} while (command(curPos, 0, 2, userAccountOption));
+}
+
+
+
+
+
+
+int userAccountOption(int curPos) {
+	switch (curPos) {
+	case 0:
+		changePassword();
+		break;
+	case 1:
+		logout();
+		ShowCur(1);
+		LoginSystem();
+		return 0;
+		break;
+	case 2:
+		return 0;
+		break;
+	}
+	return 1;
+}
+int managerStudentOption(int curPos) {
+	switch (curPos) {
+	case 0:
+		create_folder_SchoolYear();
+		break;
+	case 1:
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+	case 4:
+		break;
+	case 5:
+		break;
+	}
+	return 1;
+}
+
+
+
+int staffOption(int curPos) {
+	switch (curPos) {
+	case 0:
+		UserAccount();
+		break;
+	case 1:
+		Profile();
+		break;
+	case 2:
+		cout << "haha";
+		break;
+	case 3:
+		cout << "hihi";
+		break;
+	case 4:
+		exit(0);
+		break;
+	}
+	return 1;
+}
+
+
+
+
+
+
+
+int command(int& curPos, int minPos, int maxPos, function<int(int)> option) {
+	int key = _getch();
+	switch (key) {
+	case 13:
+		return option(curPos);
+	case 224:
+		key = _getch();
+		switch (key) {
+		case 72:
+			if (curPos > minPos) curPos--;
+			else {
+				curPos = maxPos;
+			}
+			break;
+		case 80:
+			if (curPos < maxPos) curPos++;
+			else {
+				curPos = minPos;
+			}
+			break;
+		}
+	}
+	return 1;
+}
+int generalOption(int curPos) {
+	switch (curPos) {
+	case 0:
+		return 0;
+		break;
+	}
+	return 1;
+}
+
+
+
+
+
 
 
 

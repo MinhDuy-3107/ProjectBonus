@@ -40,11 +40,13 @@ struct User {
 	User* next;
 
 };
-struct ListUser{
+
+struct ListUser {
 	User* pHead;
 	User* pTail;
 	int sz;
 };
+
 
 
 struct CourseMark {
@@ -69,7 +71,6 @@ struct Student {
 	string socialID;
 	Date dateOfBirth;
 	int academicYear;
-	//ListCourse enrolledCourses;
 	CourseMark courseMark;
 	semesterMark semesterMark;
 	Student* prev;
@@ -120,6 +121,7 @@ struct ListCourse {
 
 
 
+
 int dayofweek(int d, int m, int y);
 Date strtodate(string str);
 string Datetostring(Date a);
@@ -135,15 +137,21 @@ void addStudent(ListStudent& list, Student* student);
 void addCourse(ListCourse& list, Course* course);
 void removeCourse(ListCourse& list, Course* course);
 void removeStudent(ListStudent& list, Student* student);
+User* toUser(Student* student, string className);
+void addStudentAccount(ListStudent listStudent);
 
 
 User* convertUserData(ifstream& data);
 Student* convertStudentData(ifstream& data);
 Course* convertCourseData(ifstream& data);
+void getListCourses();
+void getListClasses();
 
 //Dang nhap
 void getlistuser();
 User* login(string id, string pass);
+void getInfomationUser();
+void logout();
 
 void createSchoolYear();
 void create_folder_SchoolYear();
@@ -160,11 +168,13 @@ void create_folder_course();
 void List_Courses(ListCourse l);
 void Display_Course(ListCourse l);
 void add_student_to_course(Student* a, string CourseId);
-void remove_student_to_course(string id, string CourseId);
+void remove_student_from_course(string id, string CourseId);
 void remove_course(string Courseid);
+ListCourse Student_Display();
 
 
 void LoginSystem();
+void StaffMenu();
 
 
 extern ListUser listuser;

@@ -61,10 +61,10 @@ int inputKey()
 		int key = _getch();
 
 		if (key == 224)
-		{
+		/*{
 			key = _getch();
 			return key + 1000;
-		}
+		}*/
 
 		return key;
 	}
