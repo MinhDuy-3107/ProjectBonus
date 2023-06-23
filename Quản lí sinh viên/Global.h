@@ -187,3 +187,4 @@ extern string id, pass;
 extern string currentSchoolYear;
 extern string semesterPath;
 extern string schoolYearPath;
+extern string classname;
