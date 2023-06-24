@@ -772,19 +772,26 @@ void Mark() {
 
 //giao dien
 int command(int&, int, int, function<int(int)>);
-int generalOption(int curPos);
+int viewListOfClassesCommand(int& curPos, int minPos, int maxPos, int& page, int numberPages, function<int(int, int)> option);
+int classDetailCommand(int& curPos, int minPos, int maxPos, Class* c, function<int(int, Class*)> option);
+
 
 void UserAccount();
 
-
+int generalOption(int curPos);
 int staffOption(int curPos);
 int userAccountOption(int curPos);
 int managerStudentOption(int curPos);
 int selectAddstudentOPtion(int curPos);
+int viewListOfClassesOption(int curPos, int page);
+int classDetailOption(int curPos, Class* c);
+
+
 
 
 
 void selectAddstudent();
+
 
 void StaffMenu() {
 	const int width = 42;
@@ -954,19 +961,15 @@ void createNewClass() {
 		createClasses(classname);
 		gotoXY(++yPos, 60);
 		cout << "Create Success!!";
-		Sleep(1000);
-		gotoXY(++yPos, 48);
-		cout<< "Press any key to add student...";
-		_getch();
-		selectAddstudent();
+		return;
 	} while (1);
 }
 
-void AddOne(string s) {
+void AddOne() {
 	const int width = 45;
 	const int height = 10;
 	const int left = 45;
-	const int top = 10;
+	const int top = 8;
 
 	int curPos = 0;
 	int yPos = 12;
@@ -975,16 +978,113 @@ void AddOne(string s) {
 	do {
 		ShowCur(1);
 		system("cls");
-		gotoXY(yPos - 4, 59); cout << "HCMUS Portal";
-		gotoXY(yPos - 2, 57); cout << "Add One Student";
+		gotoXY(yPos - 7, 59); cout << "HCMUS Portal";
+		gotoXY(yPos - 5, 57); cout << "Add One Student";
 		drawBox(width, height, left, top);
 		ListStudent l;
 		initStudent(l);
+
+		string name = "./Data/Classes/" + classname + ".csv";
+		ifstream fin;
+		fin.open(name, ios::in);
+		string temp;
+		getline(fin, temp);
+		
+		while (!fin.eof()) {
+			addStudent(l, convertStudentData(fin));
+		}
+		fin.close();
+
 		addStudent(l, InputStudent());
-		writestudent(l, s);
+		ShowCur(0);
+		writestudent(l, classname);
 		return;
 	} while (1);
 ;
+}
+void AddFile() {
+	const int width = 45;
+	const int height = 10;
+	const int left = 45;
+	const int top = 10;
+
+	int curPos = 0;
+	int yPos = 12;
+
+	do {
+		ShowCur(1);
+		system("cls");
+		gotoXY(yPos - 4, 59); cout << "HCMUS Portal";
+		gotoXY(yPos - 2, 57); cout << "Add File Student";
+		drawBox(width, height, left, top);
+		gotoXY(yPos, 55);
+		cout << "Path of file: ";
+		string a="./Data/Classes/" + classname + ".csv";
+		string b;
+		getline(cin, b);
+		ShowCur(0);
+		Copyfile(b,a);
+		return;
+	} while (1);
+
+
+}
+void viewListOfClasses() {
+	const int width = 40;
+	int height = 6;
+	const int left = 40;
+	const int top = 8;
+	int curPos = 0;
+	int yPos = 10;
+	int numberPages;
+	int page = 1;
+	int i = 0;
+
+	getListClasses();
+	do {
+		numberPages = (listClasses.size / 10) + 1;
+		i = 0;
+		height = 6;
+		system("cls");
+		gotoXY(5,55); cout << "HCMUS Portal";
+		//gotoXY(52, 7); cout << year;
+		if (listClasses.pHead != NULL) {
+			Class* temp = listClasses.pHead;
+			for (int i = 0; i < (page - 1) * 10; i++) {
+				temp = temp->next;
+			}
+			while (i < 10 && temp != NULL) {
+				gotoXY(yPos,58); cout << temp->ClassName;
+				yPos++;
+				i++;
+				temp = temp->next;
+			}
+			height += i;
+			drawBox(width, height, left, top);
+			yPos++;
+			gotoXY(yPos,58);
+			if (page > 1) cout << char(174);
+			cout << char(174) << "  " << page << "  " << char(175);
+			if (page < numberPages) cout << char(175);
+			yPos++;
+			gotoXY(yPos,59); cout << "Back";
+			yPos = 10;
+			if (curPos == i) {
+				yPos += 2;
+				gotoXY( curPos + yPos,57); cout << cursorLeft;
+				gotoXY( curPos + yPos,64); cout << cursorRight;
+			}
+			else {
+				gotoXY( curPos + yPos,56); cout << cursorLeft;
+				gotoXY(curPos + yPos,66); cout << cursorRight;
+			}
+			yPos = 10;
+		}
+		else {
+			notifyBox("Empty List...");
+			return;
+		}
+	} while (viewListOfClassesCommand(curPos, 0, i, page, numberPages, viewListOfClassesOption));
 }
 
 
@@ -1074,7 +1174,7 @@ void Profile() {
 }
 void ManageStudent() {
 	const int width = 40;
-	const int height = 7;
+	const int height = 9;
 	const int left = 41;
 	const int top = 9;
 	int curPos = 0;
@@ -1088,6 +1188,8 @@ void ManageStudent() {
 		yPos++;
 		gotoXY(yPos, 52); cout << "Create New Class";
 		yPos++;
+		gotoXY(yPos, 52); cout << "Add Student";
+		yPos++;
 		gotoXY(yPos, 52); cout << "List of Class";
 		yPos++;
 		gotoXY(yPos, 52); cout << "Student of Class";
@@ -1095,10 +1197,10 @@ void ManageStudent() {
 		yPos++;
 		gotoXY(yPos, 52); cout << "Back";
 		yPos = 10;
-		if (curPos == 4) yPos++;
+		if (curPos == 5) yPos++;
 		gotoXY(curPos + yPos, 45); cout << cursorLeft;
 		yPos = 10;
-	} while (command(curPos, 0, 4, managerStudentOption));
+	} while (command(curPos, 0, 5, managerStudentOption));
 }
 void selectAddstudent() {
 	const int width = 40;
@@ -1107,6 +1209,14 @@ void selectAddstudent() {
 	const int top = 9;
 	int curPos = 0;
 	int yPos = 10;
+	system("cls");
+	ShowCur(1);
+	drawBox(width, height, left, top);
+	gotoXY(5, 55); cout << "HCMUS Portal";
+	gotoXY(7, 55); cout << "Select Add Student";
+	gotoXY(yPos, 52); cout << "Class Name: ";
+	getline(cin, classname);
+	ShowCur(0);
 	do {
 		system("cls");
 		drawBox(width, height, left, top);
@@ -1156,13 +1266,17 @@ int managerStudentOption(int curPos) {
 		createNewClass();
 		break;
 	case 2:
+		selectAddstudent();
 		break;
 	case 3:
+		viewListOfClasses();
 		break;
 	case 4:
-		return 0;
+	
 		 break;
-
+	case 5:
+		return 0;
+		break;
 		}
 	return 1;
 }
@@ -1192,19 +1306,91 @@ int staffOption(int curPos) {
 int selectAddstudentOPtion(int curPos) {
 	switch (curPos) {
 	case 0:
-		AddOne(classname);
+		AddOne();
 		break;
 	case 1:
-		/*AddOne(classname);*/
+		AddFile();
 		break;
 	case 2:
 		return 0;
 		break;
+
 	
 	}
 	return 1;
 }
+void classDetail(Class* c) {
+	const int width = 30;
+	const int height = 7;
+	const int left = 45;
+	const int top = 8;
+	int curPos = 0;
+	int yPos = 10;
 
+	do {
+		system("cls");
+		gotoXY(55, 5); cout << "HCMUS Portal";
+		gotoXY(55, 7); cout << "Class Option";
+		drawBox(width, height, left, top);
+		textAlignCenter("List Of Student", left, width, yPos);
+		yPos++;
+		textAlignCenter("Scoreboard Of Class", left, width, yPos);
+		yPos++;
+		yPos++;
+		gotoXY(58, yPos); cout << "Back";
+		yPos = 10;
+		if (curPos == 2) yPos++;
+		if (curPos == 2) {
+			gotoXY(56, curPos + yPos); cout << cursorLeft;
+			gotoXY(65, curPos + yPos); cout << cursorRight;
+		}
+		else {
+			gotoXY(48, curPos + yPos); cout << cursorLeft;
+			gotoXY(73, curPos + yPos); cout << cursorRight;
+		}
+		yPos = 10;
+	} while (classDetailCommand(curPos, 0, 2, c, classDetailOption));
+
+}
+int viewListOfClassesOption(int curPos, int page) {
+	int count = 0;
+
+	Class* temp = listClasses.pHead;
+	for (int i = 0; i < (page - 1) * 10; i++) {
+		temp = temp->next;
+	}
+	Class* classSelected = NULL;
+	while (count < 10 && temp != NULL) {
+		if (count == curPos) {
+			classSelected = temp;
+			break;
+		}
+		count++;
+		temp = temp->next;
+	}
+	if (classSelected == NULL) {
+		return 0;
+	}
+	/*else {
+		if (currentUser->isStaff) classDetail(classSelected);
+		else viewListOfStudent(classSelected);
+	}*/
+	return 1;
+}
+int classDetailOption(int curPos, Class* c) {
+	switch (curPos) {
+	case 0:
+		viewListOfStudent(c);
+		break;
+	case 1:
+		viewScoreboard(c);
+		break;
+	case 2:
+		return 0;
+		break;
+	}
+	return 1;
+}
 
 
 
@@ -1215,6 +1401,66 @@ int command(int& curPos, int minPos, int maxPos, function<int(int)> option) {
 	switch (key) {
 	case 13:
 		return option(curPos);
+	case 224:
+		key = _getch();
+		switch (key) {
+		case 72:
+			if (curPos > minPos) curPos--;
+			else {
+				curPos = maxPos;
+			}
+			break;
+		case 80:
+			if (curPos < maxPos) curPos++;
+			else {
+				curPos = minPos;
+			}
+			break;
+		}
+	}
+	return 1;
+}
+int viewListOfClassesCommand(int& curPos, int minPos, int maxPos, int& page, int numberPages, function<int(int, int)> option) {
+	int key = _getch();
+	switch (key) {
+	case 13:
+		return option(curPos, page);
+	case 224:
+		key = _getch();
+		switch (key) {
+		case 72://up key
+			if (curPos > minPos) curPos--;
+			else {
+				curPos = maxPos;
+			}
+			break;
+		case 80://down key
+			if (curPos < maxPos) curPos++;
+			else {
+				curPos = minPos;
+			}
+			break;
+		case 75://left key
+			if (page > 1) {
+				page--;
+				curPos = 0;
+			}
+			break;
+		case 77://right key
+			if (page < numberPages) {
+				page++;
+				curPos = 0;
+			}
+			break;
+		}
+	}
+	return 1;
+}
+int classDetailCommand(int& curPos, int minPos, int maxPos, Class* c, function<int(int, Class*)> option) {
+	int key = _getch();
+	switch (key) {
+	case 13:
+		return option(curPos, c);
 	case 224:
 		key = _getch();
 		switch (key) {
