@@ -236,5 +236,5 @@ bool confirmBox() {
 
 void textAlignCenter(string s, int left, int width, int y) {
 	int x = ((width - s.length()) / 2) + left + 1;
-	gotoXY(x, y); cout << s;
+	gotoXY(y,x); cout << s;
 }

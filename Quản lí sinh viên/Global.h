@@ -146,6 +146,7 @@ Student* convertStudentData(ifstream& data);
 Course* convertCourseData(ifstream& data);
 void getListCourses();
 void getListClasses();
+ListStudent getListOfStudentInClass(Class* c);
 
 //Dang nhap
 void getlistuser();

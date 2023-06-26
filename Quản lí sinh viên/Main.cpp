@@ -7,7 +7,7 @@
 
 int main() {
 	resizeConsole(50, 100);
-    
+	
 	LoginSystem();
 
 	
