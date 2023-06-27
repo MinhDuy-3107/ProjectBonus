@@ -438,7 +438,7 @@ void create_folder_SchoolYear() {
 }
 void createClasses(string className) {
 	string b = "./Data/Classes.csv";
-	ofstream ou(b);
+	ofstream ou(b,ios::app);
 
 	string a = "./Data/Classes/" + className + ".csv";
 	ofstream out(a);
@@ -859,7 +859,7 @@ void StaffMenu() {
 
 
 void LoginSystem() {
-	
+	resizeConsole(50, 100);
 	gotoXY(5, 11);
 	cout << ".----------------.  .----------------.  .----------------.  .----------------.  .---------------- - ." << endl;
 	gotoXY(6, 11);
