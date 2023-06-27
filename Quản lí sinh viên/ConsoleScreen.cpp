@@ -129,15 +129,15 @@ void loading(string text) {
 	int height = 2;
 	int left = 40;
 	int top = 9;
-	gotoXY(55, 8); cout << text;
+	gotoXY(8,55); cout << text;
 	drawBox(width, height, left, top);
 	for (int i = 0; i < 40; i++) {
-		gotoXY(i + 41, 10); cout << char(219);
+		gotoXY(10,i + 41); cout << char(219);
 		Sleep(10);
 	}
 	system("cls");
 }
-void alignRow(int x, int& y, string text, int rowLength) {
+void alignRow(int &x, int y, string text, int rowLength) {
 	int n = count(text.begin(), text.end(), ' ') + 1;
 	string* strArr = new string[n];
 	int i = 0;
@@ -168,13 +168,14 @@ void notifyBox(string msg) {
 	int left = 40;
 	int top = 9;
 	int yPos = 11;
-	gotoXY(57, 8); cout << "NOTIFICATION";
-	alignRow(45, yPos, msg, 37);
+	gotoXY(8,57); cout << "NOTIFICATION";
+	alignRow(yPos,45, msg, 37);
 	height += (yPos - 11);
 	drawBox(width, height, left, top);
 	yPos++;
-	gotoXY(45, yPos); cout << "Press any key to continue...";
+	gotoXY(yPos,45); cout << "Press any key to continue...";
 	_getch();
+	ShowCur(0);
 	system("cls");
 }
 bool confirmBox() {

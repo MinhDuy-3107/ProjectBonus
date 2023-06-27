@@ -353,11 +353,14 @@ void getListClasses() {
 	while (!in.eof()) {
 		string a = "";
 		getline(in, a);
-		Class* tm = new Class;
-		tm->ClassName = a;
-		tm->next = NULL;
-		tm->prev = NULL;
-		addClass(listClasses, tm);
+		if (a != "") {
+			Class* tm = new Class;
+			tm->ClassName = a;
+			tm->next = NULL;
+			tm->prev = NULL;
+			addClass(listClasses, tm);
+		}
+		
 	}
 	in.close();
 }
@@ -437,22 +440,23 @@ void create_folder_SchoolYear() {
 	int a=_mkdir(schoolYearPath.c_str());
 }
 void createClasses(string className) {
-	string b = "./Data/Classes.csv";
-	ofstream ou(b,ios::app);
-
 	string a = "./Data/Classes/" + className + ".csv";
 	ofstream out(a);
 	out.close();
+	string b = "./Data/Classes.csv";
+	ofstream ou(b);
 	Class* c = new Class;
 	c->ClassName = className;
 	c->next = NULL;
 	c->prev = NULL;
 	addClass(listClasses, c);
 	Class* tmp = listClasses.pHead;
-	while (tmp != NULL) {
+	while (tmp!= NULL) {
 		ou << tmp->ClassName << endl;
 		tmp = tmp->next;
 	}
+	
+
 }
 Student* InputStudent() {
 	int yPos = 10;
@@ -891,6 +895,7 @@ void LoginSystem() {
 	gotoXY(22, 41);
 	getline(cin, pass);
 	getlistuser();
+	//getListClasses();
 	currentUser = login(id, pass);
 	if (currentUser == NULL) {
 		gotoXY(24, 35);
@@ -1264,15 +1269,15 @@ void ManageStudent() {
 		yPos++;
 		gotoXY(yPos, 52); cout << "List of Class";
 		yPos++;
-		gotoXY(yPos, 52); cout << "Student of Class";
-		yPos++;
+		/*gotoXY(yPos, 52); cout << "Student of Class";
+		yPos++;*/
 		yPos++;
 		gotoXY(yPos, 52); cout << "Back";
 		yPos = 10;
-		if (curPos == 5) yPos++;
+		if (curPos == 4) yPos++;
 		gotoXY(curPos + yPos, 45); cout << cursorLeft;
 		yPos = 10;
-	} while (command(curPos, 0, 5, managerStudentOption));
+	} while (command(curPos, 0, 4, managerStudentOption));
 }
 void selectAddstudent() {
 	const int width = 40;
@@ -1341,12 +1346,10 @@ int managerStudentOption(int curPos) {
 		selectAddstudent();
 		break;
 	case 3:
+		getListClasses();
 		viewListOfClasses();
 		break;
 	case 4:
-	
-		 break;
-	case 5:
 		return 0;
 		break;
 		}
