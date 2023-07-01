@@ -147,6 +147,7 @@ Course* convertCourseData(ifstream& data);
 void getListCourses();
 void getListClasses();
 ListStudent getListOfStudentInClass(Class* c);
+ListStudent getListStudentInMark(Course* c);
 
 //Dang nhap
 void getlistuser();
@@ -160,6 +161,7 @@ void createClasses(string lassName);
 Student* InputStudent();
 void Copyfile(string a, string b);
 void writestudent(ListStudent& list, string className);
+void writestudenttoCourse(ListStudent& list, string a);
 
 
 void create_semester();

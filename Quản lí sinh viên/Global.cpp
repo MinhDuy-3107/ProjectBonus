@@ -1,5 +1,6 @@
 #include"Global.h"
 #include"ConsoleScreen.h"
+
 using namespace std;
 const string userDataPath = "./Data/Account/User.csv";
 const char cursorLeft = char(175);
@@ -307,6 +308,26 @@ Student* convertStudentData(ifstream& data) {
 	newStudent->prev = NULL;
 	return newStudent;
 }
+Student* convertStudentMark(ifstream& data) {
+	Student* newStudent = new Student;
+	string s;
+	getline(data, s, ',');
+	if (s == "") return NULL;
+	getline(data, newStudent->studentID, ',');
+	getline(data, newStudent->lastName, ',');
+	getline(data, newStudent->firstName, ',');
+	getline(data, s,',');
+	newStudent->courseMark.OtherMark = stof(s);
+	getline(data, s, ',');
+	newStudent->courseMark.MidMark = stof(s);
+	getline(data, s, ',');
+	newStudent->courseMark.FinalMark= stof(s);
+	getline(data, s, '\n');
+	newStudent->courseMark.AverageMark = stof(s);
+	newStudent->next = NULL;
+	newStudent->prev = NULL;
+	return newStudent;
+}
 Course* convertCourseData(ifstream& data) {
 	Course* course = new Course;
 	string credits;
@@ -381,6 +402,19 @@ void getListClasses() {
 	 }
 	 in.close();
 	 return c->l;
+ }
+ ListStudent getListStudentInMark(Course* c) {
+	 string a = semesterPath + "/Mark/" + c->coursename + "-mark.csv";
+	 string tmp;
+	 ListStudent l;
+	 initStudent(l);
+	 ifstream in(a);
+	 getline(in, tmp);
+	 while (!in.eof()) {
+		 addStudent(l, convertStudentMark(in));
+	 }
+	 in.close();
+	 return l;
  }
 
 
@@ -510,9 +544,33 @@ void writestudent(ListStudent& list,string className) {
 	out.close();
 
 }
+void writestudenttoCourse(ListStudent& list, string a) {
+	ofstream out(a, ios::out);
+	if (!out.is_open()) return;
+	Student* tmp = list.pHead;
+	int stt = 1;
+	out << "No,Student ID,Last name,First name,Gender,Date of Birth,Social ID" << endl;
+	while (tmp != NULL) {
+		out << stt << ",";
+		stt++;
+		out << tmp->studentID << ",";
+		out << tmp->lastName << ",";
+		out << tmp->firstName << ",";
+		out << tmp->gender << ",";
+		string date = Datetostring(tmp->dateOfBirth);
+		out << date << ",";
+		out << tmp->socialID;
+		out << endl;
+		tmp = tmp->next;
+	}
+	out.close();
+
+}
 void create_folder_course() {
 	string course = semesterPath + "/Courses";
 	int a = _mkdir(course.c_str());
+	string mark = semesterPath + "/Mark";
+	int b = _mkdir(mark.c_str());
 }
 void create_semester() {
 	createSchoolYear();
@@ -743,8 +801,20 @@ ListCourse Student_Display() {
 	}
 	return list;
 }
-void Mark() {
-
+void saveScoreboard(ListStudent list, Course course) {
+	ofstream fout("./Data/" + currentSchoolYear + "/semester "
+		+ to_string(currentSemester.Semester) + "/Mark/" + course.coursename + "-mark.csv");
+	fout << "No,Student Id,Full name,OtherMark,MidMark,FinalMark,AverageMark" << endl;
+	int no = 1;
+	Student* temp = list.pHead;
+	while (temp != NULL) {
+		fout << no << "," << temp->studentID << "," << temp->lastName << " " << temp->firstName
+			<< "," << temp->courseMark.OtherMark << "," << temp->courseMark.MidMark << ","
+			<< temp->courseMark.FinalMark << "," << temp->courseMark.AverageMark << endl;
+		temp = temp->next;
+		no++;
+	}
+	fout.close();
 }
 
 
@@ -827,6 +897,8 @@ int viewListOfClassesCommand(int& curPos, int minPos, int maxPos, int& page, int
 int classDetailCommand(int& curPos, int minPos, int maxPos, Class* c, function<int(int, Class*)> option);
 int viewCoursesCommand(int& curPos, int minPos, int maxPos, int& page, int numberPages, function<int(int, int)> option);
 int updateCourseCommand(int& curPos, int minPos, int maxPos, Course* course, function<int(int, Course*)> option);
+int viewScoreboardCommand(int& curPos, int minPos, int maxPos, ListStudent list, Course course,
+	int& page, int numberPages, function<int(int, int, ListStudent, Course)> option);
 
 
 
@@ -843,6 +915,7 @@ int viewListOfStudentOption(int curPos, int page);
 int viewCourseOption(int curPos, int page);
 int manageCoursesOption(int curPos);
 int updateCourseOption(int curPos, Course* course);
+int viewScoreboardOption(int curPos, int page, ListStudent list, Course course);
 
 
 
@@ -1093,6 +1166,7 @@ void AddOneCourse() {
 	const int top = 8;
 	int curPos = 0;
 	int yPos = 12;
+	string s;
 	//getListCourses();
 	do {
 		ShowCur(1);
@@ -1116,9 +1190,218 @@ void AddOneCourse() {
 		cout << "File Students enrolled: ";
 		getline(cin, b);
 		Copyfile(b, semesterPath + "/Courses/" + e->coursename + ".csv");
+		ListStudent ss;
+		initStudent(ss);
+		ifstream i(semesterPath + "/Courses/" + e->coursename + ".csv");
+		ofstream o1(semesterPath + "/Mark/" + e->coursename + "-mark.csv");
+		o1.close();
+		ofstream o(semesterPath + "/Mark/" + e->coursename + "-mark.csv");
+		getline(i, s);
+		while (!i.eof()) {
+			addStudent(ss, convertStudentData(i));
+		}
+		i.close();
+		int stt = 1;
+		o << "No,ID,Full name,OtherMark,MidMark,FinalMark,AverageMark" << endl;
+		Student* r = ss.pHead;
+		while (r != NULL) {
+			o << stt << "," << r->studentID << "," << r->lastName+" " + r->firstName;
+			if (r->next != NULL) o << endl;
+			r = r->next;
+			stt++;
+		}
 		ShowCur(0);
 		return;
 	} while (true);
+}
+void AddStudentToCourse(Course* &course) {
+	
+	const int width = 45;
+	const int height = 10;
+	const int left = 45;
+	const int top = 8;
+
+	int curPos = 0;
+	int yPos = 12;
+
+
+	do {
+		ShowCur(1);
+		system("cls");
+		gotoXY(yPos - 7, 59); cout << "HCMUS Portal";
+		gotoXY(yPos - 5, 57); cout << "Add One Student";
+		drawBox(width, height, left, top);
+		string a = semesterPath + "/Courses/" + course->coursename + ".csv";
+		ifstream in(a);
+		string tmp;
+		initStudent(course->l);
+		getline(in, tmp);
+		while (!in.eof()) {
+			addStudent(course->l, convertStudentData(in));
+		}
+		in.close();
+
+		addStudent(course->l, InputStudent());
+		ShowCur(0);
+		writestudenttoCourse(course->l, a);
+		return;
+	} while (1);
+}
+void DeleteStudent(Course*&course) {
+	const int width = 45;
+	const int height = 6;
+	const int left = 45;
+	const int top = 8;
+
+	int curPos = 0;
+	int yPos = 12;
+
+
+	do {
+		ShowCur(1);
+		system("cls");
+		gotoXY(yPos - 7, 59); cout << "HCMUS Portal";
+		gotoXY(yPos - 5, 57); cout << "Delete Student";
+		drawBox(width, height, left, top);
+		string a = semesterPath + "/Courses/" + course->coursename + ".csv";
+		ifstream in(a);
+		string tmp;
+		initStudent(course->l);
+		getline(in, tmp);
+		while (!in.eof()) {
+			addStudent(course->l, convertStudentData(in));
+		}
+		in.close();
+		string b;
+		gotoXY(yPos, 55); cout << "Student ID: ";
+		getline(cin, b);
+		Student* tm = course->l.pHead;
+		while (tm != NULL) {
+			if (tm->studentID == b) {
+				removeStudent(course->l, tm);
+				writestudenttoCourse(course->l, a);
+				return;
+			}
+			tm = tm->next;
+		}
+		return;
+	} while (1);
+}
+void ImportScoreBoard(Course*course) {
+	const int width = 45;
+	const int height = 6;
+	const int left = 45;
+	const int top = 8;
+
+	int curPos = 0;
+	int yPos = 12;
+	do {
+		ShowCur(1);
+		system("cls");
+		gotoXY(yPos - 7, 59); cout << "HCMUS Portal";
+		gotoXY(yPos - 5, 57); cout << "Import ScoreBoard";
+		drawBox(width, height, left, top);
+		gotoXY(yPos, 55); cout << "File ScoreBoard: ";
+		string b;
+		getline(cin, b);
+		string a = semesterPath + "/Mark/" + course->coursename + "-mark.csv";
+		Copyfile(b, a);
+		ShowCur(0);
+		return;
+	} while (1);
+}
+void ViewListScoreBoard() {
+
+	const int width = 45;
+	const int height = 6;
+	const int left = 45;
+	const int top = 8;
+
+	int curPos = 0;
+	int yPos = 12;
+	do {
+		
+		return;
+	} while (1);
+
+
+}
+
+void viewScoreboard(Course* course) {
+	const int width = 64;
+	int height = 10;
+	const int left = 28;
+	const int top = 8;
+	int curPos = 0;
+	int yPos = 13;
+	int numberPages;
+	int page = 1;
+	int i = 0;
+	int no;
+	ListStudent list = getListStudentInMark(course);
+	do {
+		numberPages = (list.size / 10) + 1;
+		i = 0;
+		height = 10;
+		system("cls");
+		gotoXY(5,55); cout << "HCMUS Portal";
+		gotoXY(7,56); cout << "Scoreboard";
+		textAlignCenter(course->coursename, left, width, 9);
+		gotoXY(11,31); cout << "No";
+		gotoXY(11,36); cout << "ID";
+		gotoXY(11,45); cout << "Full name";
+		gotoXY(11,63); cout << "Other";
+		gotoXY(11,70); cout << "Midterm";
+		gotoXY(11,79); cout << "Final";
+		gotoXY(11,89); cout << "Total";
+		if (list.pHead != NULL) {
+			Student* temp = list.pHead;
+			for (int i = 0; i < (page - 1) * 10; i++) {
+				temp = temp->next;
+			}
+			while (i < 10 && temp != NULL) {
+				no = (page - 1) * 10 + i + 1;
+				gotoXY(yPos,31); cout << no;
+				gotoXY(yPos,36); cout << temp->studentID;
+				string fullName = temp->lastName + " " + temp->firstName;
+				if (fullName.length() > 27) fullName = fullName.substr(0, 27);
+				gotoXY(yPos,45); cout << fullName;
+				gotoXY(yPos,63); cout << temp->courseMark.OtherMark;
+				gotoXY(yPos,70); cout << temp->courseMark.MidMark;
+				gotoXY(yPos,79); cout << temp->courseMark.FinalMark;
+				gotoXY(yPos,86); cout << temp->courseMark.AverageMark;
+				yPos++;
+				i++;
+				temp = temp->next;
+			}
+			height += i;
+			drawBox(width, height, left, top);
+			yPos++;
+			gotoXY(yPos,58);
+			if (page > 1) cout << char(174);
+			cout << char(174) << "  " << page << "  " << char(175);
+			if (page < numberPages) cout << char(175);
+			yPos++;
+			gotoXY(yPos,59); cout << "Save";
+			yPos++;
+			gotoXY(yPos,59); cout << "Back";
+			yPos = 13;
+			if (curPos == i || curPos == i + 1) {
+				yPos += 2;
+				gotoXY( curPos + yPos,57); cout << cursorLeft;
+				gotoXY( curPos + yPos,64); cout << cursorRight;
+			}
+			else {
+				gotoXY( curPos + yPos,29); cout << cursorLeft;
+				gotoXY(curPos + yPos,92); cout << cursorRight;
+			}
+			yPos = 13;
+		}
+		else {
+			notifyBox("Empty List...");
+			return;
+		}
+	} while (viewScoreboardCommand(curPos, 0, i + 1, list, *course, page, numberPages, viewScoreboardOption));
 }
 void viewListOfClasses() {
 	const int width = 40;
@@ -1324,6 +1607,25 @@ void courseDetail(Course* course) {
 	} while (command(curPos, 0, 0, generalOption));
 
 }
+void updateStudentResult(Student* student) {
+	const int width = 30;
+	int height = 8;
+	const int left = 45;
+	const int top = 8;
+	int curPos = 0;
+
+	ShowCur(1);
+	system("cls");
+	textAlignCenter("HCMUS Portal", left, width, 5);
+	textAlignCenter("Update Student Result", left, width, 7);
+	drawBox(width, height, left, top);
+	textAlignCenter(student->lastName + " " + student->firstName, left, width, 9);
+	gotoXY(11, 50); cout << "Other Mark: "; cin >> student->courseMark.OtherMark;
+	gotoXY(12, 50); cout << "Midterm Mark: "; cin >> student->courseMark.MidMark;
+	gotoXY(13, 50); cout << "Final Mark: "; cin >> student->courseMark.FinalMark;
+	gotoXY(14, 50); cout << "Total Mark: "; cin >> student->courseMark.AverageMark;
+	ShowCur(0);
+}
 
 
 
@@ -1360,7 +1662,7 @@ void updateCourse(Course* course) {
 		gotoXY(yPos,58); cout << "Back";
 		yPos = 10;
 		if (curPos == 7) yPos++;
-		if (curPos < 1 || curPos == 8) {
+		if (curPos < 1 || curPos == 7) {
 			gotoXY(curPos + yPos,56); cout << cursorLeft;
 			gotoXY( curPos + yPos,65); cout << cursorRight;
 		}
@@ -1828,28 +2130,61 @@ int updateCourseOption(int curPos, Course* course) {
 		else return 1;
 		break;
 	case 2:
-		AddOne();
+		AddStudentToCourse(course);
 		return 1;
 		break;
 	case 3:
-		
+		DeleteStudent(course);
+		return 1;
 		break;
 	case 4:
 		viewListStudentOfCourse(course);
 		return 1;
 		break;
 	case 5:
-		/*viewScoreboard(course);
-		return 1;*/
+		ImportScoreBoard(course);
+		return 1;
 		break;
 	case 6:
-		
+		viewScoreboard(course);
+		return 1;
 		break;
 	case 7:
 		break;
 	}
 	write_course();
 	return 0;
+}
+int viewScoreboardOption(int curPos, int page, ListStudent list, Course course) {
+	int count = 0;
+
+	Student* temp = list.pHead;
+	for (int i = 0; i < (page - 1) * 10; i++) {
+		temp = temp->next;
+	}
+	Student* studentSelected = NULL;
+	while (count < 10 && temp != NULL) {
+		if (count == curPos) {
+			studentSelected = temp;
+			break;
+		}
+		count++;
+		temp = temp->next;
+	}
+	if (studentSelected == NULL) {
+		int n = count - curPos;
+		switch (n) {
+		case 0:
+			loading("Saving...");
+			saveScoreboard(list, course);
+			return 0;
+		}
+		return 0;
+	}
+	else {
+		updateStudentResult(studentSelected);
+	}
+	return 1;
 }
 //int AddCourse(int curPos) {
 //	switch (curPos) {
@@ -2010,6 +2345,43 @@ int updateCourseCommand(int& curPos, int minPos, int maxPos, Course* course, fun
 			if (curPos < maxPos) curPos++;
 			else {
 				curPos = minPos;
+			}
+			break;
+		}
+	}
+	return 1;
+}
+int viewScoreboardCommand(int& curPos, int minPos, int maxPos, ListStudent list, Course course,
+	int& page, int numberPages, function<int(int, int, ListStudent, Course)> option) {
+	int key = _getch();
+	switch (key) {
+	case 13:
+		return option(curPos, page, list, course);
+	case 224:
+		key = _getch();
+		switch (key) {
+		case 72://up key
+			if (curPos > minPos) curPos--;
+			else {
+				curPos = maxPos;
+			}
+			break;
+		case 80://down key
+			if (curPos < maxPos) curPos++;
+			else {
+				curPos = minPos;
+			}
+			break;
+		case 75://left key
+			if (page > 1) {
+				page--;
+				curPos = 0;
+			}
+			break;
+		case 77://right key
+			if (page < numberPages) {
+				page++;
+				curPos = 0;
 			}
 			break;
 		}
