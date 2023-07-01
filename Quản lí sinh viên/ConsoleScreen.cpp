@@ -149,7 +149,7 @@ void alignRow(int &x, int y, string text, int rowLength) {
 	i = 0;
 	int s = rowLength;
 	while (i < n) {
-		gotoXY(x, y);
+		gotoXY(x,y);
 		rowLength = s;
 		while (rowLength > 0 || i < n) {
 			cout << strArr[i] << " ";
@@ -157,7 +157,7 @@ void alignRow(int &x, int y, string text, int rowLength) {
 			i++;
 			if (rowLength < (strArr[i].length() + 1)) break;
 		}
-		y++;
+		x++;
 	}
 }
 void notifyBox(string msg) {
@@ -191,19 +191,19 @@ bool confirmBox() {
 	do
 	{
 		system("cls");
-		gotoXY(57, 7); cout << "CONFIRM";
+		gotoXY(7,57); cout << "CONFIRM";
 		textAlignCenter("Are you sure", left, width, yPos);
 		drawBox(width, height, left, top);
 		yPos += 2;
-		gotoXY(50, yPos); cout << "Yes";
-		gotoXY(70, yPos); cout << "No";
+		gotoXY(yPos,50); cout << "Yes";
+		gotoXY(yPos,70); cout << "No";
 		if (curPos == 0) {
-			gotoXY(48, yPos); cout << char(175);
-			gotoXY(55, yPos); cout << char(174);
+			gotoXY( yPos,48); cout << char(175);
+			gotoXY(yPos,55); cout << char(174);
 		}
 		else {
-			gotoXY(68, yPos); cout << char(175);
-			gotoXY(75, yPos); cout << char(174);
+			gotoXY(yPos,68); cout << char(175);
+			gotoXY(yPos,75); cout << char(174);
 		}
 		int key = _getch();
 		switch (key) {

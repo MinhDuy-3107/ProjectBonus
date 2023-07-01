@@ -151,7 +151,7 @@ ListStudent getListOfStudentInClass(Class* c);
 //Dang nhap
 void getlistuser();
 User* login(string id, string pass);
-void getInfomationUser();
+//void getInfomationUser();
 void logout();
 
 void createSchoolYear();
@@ -162,9 +162,9 @@ void Copyfile(string a, string b);
 void writestudent(ListStudent& list, string className);
 
 
-void create_semester(int a);
-Course* Inputcourse();
-void write_course(ListCourse l);
+void create_semester();
+Course* InputCourse();
+void write_course();
 void create_folder_course();
 void List_Courses(ListCourse l);
 void Display_Course(ListCourse l);

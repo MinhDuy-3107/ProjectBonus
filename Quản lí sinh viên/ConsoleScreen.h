@@ -28,5 +28,5 @@ void drawBox(int width, int height, int left, int top);
 void loading(string text);
 void notifyBox(string msg);
 bool confirmBox();
-void alignRow(int x, int& y, string text, int rowLength);
+void alignRow(int &x, int y, string text, int rowLength);
 void textAlignCenter(string s, int left, int width, int y);
