@@ -370,6 +370,18 @@ void getListClasses() {
 	 return l;
 
 }
+ ListStudent getListOfStudentInCourse(Course* c) {
+	 string a = semesterPath + "/Courses/" + c->coursename + ".csv";
+	 string tmp;
+	 initStudent(c->l);
+	 ifstream in(a);
+	 getline(in, tmp);
+	 while (!in.eof()) {
+		 addStudent(c->l, convertStudentData(in));
+	 }
+	 in.close();
+	 return c->l;
+ }
 
 
 
@@ -1224,6 +1236,65 @@ void viewListOfStudent(Class* c) {
 		}
 	} while (viewCoursesCommand(curPos, 0, 0, page, numberPages, viewListOfStudentOption));
 }
+void viewListStudentOfCourse(Course* c) {
+	const int width = 54;
+	int height = 9;
+	const int left = 33;
+	const int top = 8;
+	int curPos = 0;
+	int yPos = 12;
+	int numberPages;
+	int page = 1;
+	int i = 0;
+	int no;
+	ListStudent list = getListOfStudentInCourse(c);
+	do {
+		numberPages = (list.size / 10) + 1;
+		i = 0;
+		height = 9;
+		system("cls");
+		gotoXY(5, 55); cout << "HCMUS Portal";
+		gotoXY(7, 58); cout << c->coursename;
+		gotoXY(10, 36); cout << "No";
+		gotoXY(10, 42); cout << "ID";
+		gotoXY(10, 52); cout << "Last name";
+		gotoXY(10, 77); cout << "First name";
+		if (list.pHead != NULL) {
+			Student* temp = list.pHead;
+			for (int i = 0; i < (page - 1) * 10; i++) {
+				temp = temp->next;
+			}
+			while (i < 10 && temp != NULL) {
+				no = (page - 1) * 10 + i + 1;
+				gotoXY(yPos, 36); cout << no;
+				gotoXY(yPos, 42); cout << temp->studentID;
+				string lastName = temp->lastName;
+				if (lastName.length() > 24) lastName = lastName.substr(0, 24);
+				gotoXY(yPos, 52); cout << lastName;
+				gotoXY(yPos, 77); cout << temp->firstName;
+				yPos++;
+				i++;
+				temp = temp->next;
+			}
+			height += i;
+			drawBox(width, height, left, top);
+			yPos++;
+			gotoXY(yPos, 58);
+			if (page > 1) cout << char(174);
+			cout << char(174) << "  " << page << "  " << char(175);
+			if (page < numberPages) cout << char(175);
+			yPos++;
+			gotoXY(yPos, 59); cout << "Back";
+			gotoXY(curPos + yPos, 57); cout << cursorLeft;
+			gotoXY(curPos + yPos, 64); cout << cursorRight;
+			yPos = 12;
+		}
+		else {
+			notifyBox("Empty List...");
+			return;
+		}
+	} while (viewCoursesCommand(curPos, 0, 0, page, numberPages, viewListOfStudentOption));
+}
 void courseDetail(Course* course) {
 	const int width = 40;
 	const int height = 14;
@@ -1273,11 +1344,13 @@ void updateCourse(Course* course) {
 		drawBox(width, height, left, top);
 		gotoXY( yPos,58); cout << "Detail";
 		yPos++;
-		gotoXY(yPos,58); cout << "Delete";
+		textAlignCenter("Delete Course", 45, 30, yPos);
+		yPos++;
+		textAlignCenter("Add Student", 45, 30, yPos);
+		yPos++;
+		textAlignCenter("Delete Student", 45, 30, yPos);
 		yPos++;
 		textAlignCenter("List Of Student", 45, 30, yPos);
-		yPos++;
-		textAlignCenter("Export List Of Student", 45, 30, yPos);
 		yPos++;
 		textAlignCenter("Import Scoreboard", 45, 30, yPos);
 		yPos++;
@@ -1287,7 +1360,7 @@ void updateCourse(Course* course) {
 		gotoXY(yPos,58); cout << "Back";
 		yPos = 10;
 		if (curPos == 7) yPos++;
-		if (curPos < 2 || curPos == 6) {
+		if (curPos < 1 || curPos == 8) {
 			gotoXY(curPos + yPos,56); cout << cursorLeft;
 			gotoXY( curPos + yPos,65); cout << cursorRight;
 		}
@@ -1296,7 +1369,7 @@ void updateCourse(Course* course) {
 			gotoXY(curPos + yPos,73); cout << cursorRight;
 		}
 		yPos = 10;
-	} while (updateCourseCommand(curPos, 0, 6, course, updateCourseOption));
+	} while (updateCourseCommand(curPos, 0, 8, course, updateCourseOption));
 
 	write_course();
 }
@@ -1754,23 +1827,23 @@ int updateCourseOption(int curPos, Course* course) {
 		if (confirmBox()) removeCourse(listCourses,course);
 		else return 1;
 		break;
-	case 3:
-		//viewListOfStudent(course);
+	case 2:
+		AddOne();
 		return 1;
+		break;
+	case 3:
+		
 		break;
 	case 4:
-		/*loading("Exporting...");
-		exportListStudentInCourse(course);
-		return 1;*/
-		break;
-	case 5:
-		/*loading("Importing...");
-		importScoreboard(course)*/;
+		viewListStudentOfCourse(course);
 		return 1;
 		break;
-	case 6:
+	case 5:
 		/*viewScoreboard(course);
 		return 1;*/
+		break;
+	case 6:
+		
 		break;
 	case 7:
 		break;

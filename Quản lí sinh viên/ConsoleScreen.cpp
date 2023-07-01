@@ -179,7 +179,7 @@ void notifyBox(string msg) {
 	system("cls");
 }
 bool confirmBox() {
-	ShowCur(true);
+	//ShowCur(true);
 	system("cls");
 	int width = 40;
 	int height = 6;
