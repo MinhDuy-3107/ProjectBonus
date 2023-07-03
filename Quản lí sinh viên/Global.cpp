@@ -2,6 +2,7 @@
 #include"ConsoleScreen.h"
 
 using namespace std;
+
 const string userDataPath = "./Data/Account/User.csv";
 const char cursorLeft = char(175);
 const char cursorRight = char(174);
@@ -1671,7 +1672,7 @@ void updateCourse(Course* course) {
 			gotoXY(curPos + yPos,73); cout << cursorRight;
 		}
 		yPos = 10;
-	} while (updateCourseCommand(curPos, 0, 8, course, updateCourseOption));
+	} while (updateCourseCommand(curPos, 0, 7, course, updateCourseOption));
 
 	write_course();
 }
@@ -1695,7 +1696,7 @@ void viewCourses() {
 		gotoXY(7,55); cout << "List Course";
 		gotoXY(10,48); cout << "ID";
 		gotoXY(10,60); cout << "Course name";
-	
+		getListCourses();
 		
 		if (listCourses.pHead != NULL) {
 			Course* temp = listCourses.pHead;
