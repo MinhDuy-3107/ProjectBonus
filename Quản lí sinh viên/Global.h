@@ -13,7 +13,11 @@
 #include <io.h>
 #include <filesystem>
 #include <sstream>
+#include<cstdio>
 #include <cwchar>
+#include<sys/stat.h>
+
+
 
 
 
@@ -100,6 +104,7 @@ struct Course {
 	string coursename;
 	string teachername;
 	string classname;
+	CourseMark mark;
 	ListStudent l;
 	int credits;
 	int maxstudents = 50;
@@ -116,7 +121,6 @@ struct ListCourse {
 	Date start, end;
 	int size;
 };
-
 
 
 

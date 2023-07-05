@@ -221,6 +221,27 @@ void removeCourse(ListCourse& list, Course* course) {
 	}
 	list.size--;
 }
+void removeSameCourse(Course* head) {
+	if (head == nullptr) {
+		return;
+	}
+
+	Course* current = head;
+	while (current != nullptr) {
+		Course* runner = current;
+		while (runner->next != nullptr) {
+			if (runner->next->coursename == current->coursename) {
+				Course* duplicate = runner->next;
+				runner->next = runner->next->next;
+				delete duplicate;
+			}
+			else {
+				runner = runner->next;
+			}
+		}
+		current = current->next;
+	}
+}
 void saveListUser() {
 	ofstream fout(userDataPath);
 	fout << "ID,Password,Last name,First name,Class,Gender,Date of Birth,Academic year,Staff" << endl;
@@ -312,19 +333,22 @@ Student* convertStudentData(ifstream& data) {
 Student* convertStudentMark(ifstream& data) {
 	Student* newStudent = new Student;
 	string s;
+	float a;
 	getline(data, s, ',');
 	if (s == "") return NULL;
 	getline(data, newStudent->studentID, ',');
 	getline(data, newStudent->lastName, ',');
 	getline(data, newStudent->firstName, ',');
 	getline(data, s,',');
-	newStudent->courseMark.OtherMark = stof(s);
+	a = stof(s);
+	newStudent->courseMark.OtherMark = (float)a;
 	getline(data, s, ',');
 	newStudent->courseMark.MidMark = stof(s);
 	getline(data, s, ',');
 	newStudent->courseMark.FinalMark= stof(s);
 	getline(data, s, '\n');
-	newStudent->courseMark.AverageMark = stof(s);
+	a = stof(s);
+	newStudent->courseMark.AverageMark = (float)a;
 	newStudent->next = NULL;
 	newStudent->prev = NULL;
 	return newStudent;
@@ -340,8 +364,27 @@ Course* convertCourseData(ifstream& data) {
 	course->credits = stoi(credits);
 	getline(data, course->classname, ',');
 	getline(data, course->dayofweek, ',');
-	getline(data, course->session, ',');
+	getline(data, course->session, '\n');
 	initStudent(course->l);
+	course->prev = NULL;
+	course->next = NULL;
+	return course;
+}
+Course* convertCourseMark(ifstream& data) {
+	Course* course = new Course;
+	string credits;
+	getline(data, course->coursename, ',');
+	if (course->coursename == "") return NULL;
+	getline(data, credits, ',');
+	course->credits = stoi(credits);
+	getline(data, credits, ',');
+	course->mark.OtherMark = stof(credits);
+	getline(data, credits, ',');
+	course->mark.MidMark = stof(credits);
+	getline(data, credits, ',');
+	course->mark.FinalMark = stof(credits);
+	getline(data, credits, '\n');
+	course->mark.AverageMark = stof(credits);
 	course->prev = NULL;
 	course->next = NULL;
 	return course;
@@ -392,6 +435,7 @@ void getListClasses() {
 	 return l;
 
 }
+
  ListStudent getListOfStudentInCourse(Course* c) {
 	 string a = semesterPath + "/Courses/" + c->coursename + ".csv";
 	 string tmp;
@@ -413,6 +457,18 @@ void getListClasses() {
 	 getline(in, tmp);
 	 while (!in.eof()) {
 		 addStudent(l, convertStudentMark(in));
+	 }
+	 in.close();
+	 return l;
+ }
+ ListCourse get(string a) {
+	 ListCourse l;
+	 initCourse(l);
+	 string s;
+	 ifstream in(a);
+	 getline(in, s);
+	 while (!in.eof()) {
+		 addCourse(l, convertCourseMark(in));
 	 }
 	 in.close();
 	 return l;
@@ -458,6 +514,33 @@ void createSchoolYear() {
 	}
 	
 }
+
+bool isDirectoryExists(const string& folderPath) {
+	struct stat buffer;
+	return (stat(folderPath.c_str(), &buffer) == 0);
+}
+bool isFileExists(const string& filePath) {
+	ifstream file(filePath);
+	return file.good();
+}
+bool clearFileData(const string& filePath) {
+	if (remove(filePath.c_str()) == 0) {
+		FILE* file = std::fopen(filePath.c_str(), "w");
+		if (file != nullptr) {
+			fclose(file);
+			return true;
+		}
+	}
+	return false;
+}
+bool removeFolder(const std::string& folderPath) {
+	std::string removeCommand = "rm -rf ";
+	removeCommand += folderPath;
+	const char* command = removeCommand.c_str();
+	int result = std::system(command);
+	return (result == 0);
+}
+
 
 void create_folder_SchoolYear() {
 	createSchoolYear();
@@ -567,6 +650,17 @@ void writestudenttoCourse(ListStudent& list, string a) {
 	out.close();
 
 }
+void write(ListCourse l,string a) { 
+	ofstream out(a);
+	out << "Course Name,Credits,OtherMark,MidMark,FinalMark,TotalMark\n";
+	Course* tmp = l.pHead;
+	while (tmp != NULL) {
+		out << tmp->coursename << "," <<tmp->credits<<"," << tmp->mark.OtherMark << "," << tmp->mark.MidMark << "," << tmp->mark.FinalMark << "," << tmp->mark.AverageMark;
+		tmp = tmp->next;
+		if (tmp != NULL) out << endl;
+	}
+	out.close();
+}
 void create_folder_course() {
 	string course = semesterPath + "/Courses";
 	int a = _mkdir(course.c_str());
@@ -591,9 +685,23 @@ void create_semester() {
 		drawBox(width, height, left, top);
 		gotoXY(yPos, 50); cout << "Semester(1,2,3): ";
 		cin >> currentSemester.Semester;
-		semesterPath = "./Data/" + currentSchoolYear + "/Semester " + to_string(currentSemester.Semester);
-		yPos++;
 		cin.ignore();
+		semesterPath = "./Data/" + currentSchoolYear + "/Semester " + to_string(currentSemester.Semester);
+		if (isDirectoryExists(semesterPath)) {
+			notifyBox("Semester is Existed");
+			ifstream in(semesterPath + "/Courses.csv");
+			getline(in, temp, ',');
+			getline(in, temp, ',');
+			currentSemester.start = strtodate(temp);
+			getline(in, temp, '\n');
+			currentSemester.end = strtodate(temp);
+			
+			getListCourses();
+			
+			return;
+		}
+		yPos++;
+		
 		gotoXY(yPos, 45);
 		cout << "Start(dd/mm/yyyy): ";
 		getline(cin, temp);
@@ -616,6 +724,7 @@ void create_semester() {
 
 Course* InputCourse() {
 	int yPos = 10;
+	string tmp;
 	Course* a = new Course;
 	gotoXY(yPos, 53);
 	cout << "Course Name: ";
@@ -631,8 +740,8 @@ Course* InputCourse() {
 	getline(cin, a->classname);
 	gotoXY(++yPos, 53);
 	cout << "Credits: ";
-	cin >> a->credits;
-	cin.ignore();
+	getline(cin, tmp);
+	a->credits = stoi(tmp);
 	gotoXY(++yPos, 53);
 	cout << "Day of week: ";
 	getline(cin, a->dayofweek);
@@ -803,19 +912,65 @@ ListCourse Student_Display() {
 	return list;
 }
 void saveScoreboard(ListStudent list, Course course) {
-	ofstream fout("./Data/" + currentSchoolYear + "/semester "
-		+ to_string(currentSemester.Semester) + "/Mark/" + course.coursename + "-mark.csv");
-	fout << "No,Student Id,Full name,OtherMark,MidMark,FinalMark,AverageMark" << endl;
+	ofstream fout(semesterPath + "/Mark/" + course.coursename + "-mark.csv");
+	fout << "No,Student Id,Last name,First name,OtherMark,MidMark,FinalMark,AverageMark" << endl;
 	int no = 1;
 	Student* temp = list.pHead;
 	while (temp != NULL) {
-		fout << no << "," << temp->studentID << "," << temp->lastName << " " << temp->firstName
+		fout << no << "," << temp->studentID << "," << temp->lastName << "," << temp->firstName
 			<< "," << temp->courseMark.OtherMark << "," << temp->courseMark.MidMark << ","
 			<< temp->courseMark.FinalMark << "," << temp->courseMark.AverageMark << endl;
 		temp = temp->next;
 		no++;
 	}
 	fout.close();
+}
+
+
+
+void SemesterSummary() {
+	getListCourses();
+	string a = semesterPath + "/Student";
+
+	int x = _mkdir(a.c_str());
+	Course* tmp = listCourses.pHead;
+	while (tmp != NULL) {
+		ListStudent l;
+		initStudent(l);
+		string f = semesterPath + "/Mark/" + tmp->coursename + "-mark.csv";
+		ifstream ifile(f);
+		string tm;
+		getline(ifile, tm);
+		while (!ifile.eof()) {
+			addStudent(l, convertStudentMark(ifile));
+		}
+		ifile.close();
+		Student* tm1 = l.pHead;
+		while (tm1 != NULL) {
+			ListCourse m;
+			string b = a + "/" + tm1->studentID + ".csv";
+			if (!isFileExists(b)) {
+				ofstream w(b);
+				w.close();
+			}
+			Course* af = new Course;
+			af->coursename = tmp->coursename;
+			af->credits = tmp->credits;
+			af->mark.OtherMark = tm1->courseMark.OtherMark;
+			af->mark.MidMark = tm1->courseMark.MidMark;
+			af->mark.FinalMark = tm1->courseMark.FinalMark;
+			af->mark.AverageMark = tm1->courseMark.FinalMark;
+			af->next = NULL;
+			af->prev = NULL;
+			m=get(b);
+			removeSameCourse(m.pHead);
+			addCourse(m, af);
+			write(m, b);
+			tm1 = tm1->next;
+		}
+		tmp = tmp->next;
+	}
+	loading("Calculate");
 }
 
 
@@ -907,6 +1062,7 @@ void UserAccount();
 
 int generalOption(int curPos);
 int staffOption(int curPos);
+int studentOption(int curPos);
 int userAccountOption(int curPos);
 int managerStudentOption(int curPos);
 int selectAddstudentOPtion(int curPos);
@@ -972,7 +1128,56 @@ void StaffMenu() {
 	} while (command(curPos, 0, 4, staffOption));
 }
 
+void StudentMenu() {
+	const int width = 42;
+	const int height = 7;
+	const int left = 40;
+	const int top = 12;
+	int curPos = 0;
+	int x = 13;
+	
+	do {
+		resizeConsole(50, 100);
+		ShowCur(0);
+		system("cls");
+		gotoXY(3, 10);
+		cout << " _______  _______  __   __  ______   _______  __   _  _______    __   __  _______  __    _  __   __";
+		gotoXY(4, 10);
+		cout << "|       ||       ||  | |  ||      | |       ||  | | ||       |  |  |_|  ||       ||  |  | ||  | |  |";
+		gotoXY(5, 10);
+		cout << "|  _____||_     _||  | |  ||  _ ||_||   |_|_||_    _|  |   |    |       ||   |___||  | |  |";
+		gotoXY(6, 10);
+		cout << "| |_____   |   |  |  |_|  || | |   ||   |___ |      |  |   |    |       ||   |___ |       ||  |_|  |";
+		gotoXY(7, 10);
+		cout << "|_____  |  |   |  |       || |_|   ||    ___ || _   |  |   |    |       ||    ___|| |_    ||       |";
+		gotoXY(8, 10);
+		cout << " ____|  |  |   |  |       ||       ||   |___ | | |  |  |   |    | ||_|| ||   |___|| | ||  ||       |";
+		gotoXY(9, 10);
+		cout << "|_______|  |___|  |_______||______| |_______||_| |__|  |___|    |_|   |_||_______||_|   |_||_______|";
 
+		drawBox(width, height, left, top);
+		gotoXY(x, 50);
+		x++;
+		cout << "User Account";
+		gotoXY(x, 50);
+		x++;
+		cout << "Profile";
+		gotoXY(x, 50);
+		x++;
+		cout << "View List Of Course";
+		gotoXY(x, 50);
+		x++;
+		x++;
+		cout << "View Scoreboard";
+		gotoXY(x, 50);
+		cout << "Exit";
+		x = 13;
+		if (curPos == 4) x++;
+		gotoXY(x + curPos, 45);
+		cout << (char)175;
+		x = 13;
+	} while (command(curPos, 0, 4, studentOption));
+}
 
 
 void LoginSystem() {
@@ -1024,6 +1229,7 @@ void LoginSystem() {
 		}
 		else {
 			system("cls");
+			StudentMenu();
 		}
 	}
 }
@@ -1168,7 +1374,6 @@ void AddOneCourse() {
 	int curPos = 0;
 	int yPos = 12;
 	string s;
-	//getListCourses();
 	do {
 		ShowCur(1);
 		system("cls");
@@ -1179,23 +1384,29 @@ void AddOneCourse() {
 		Course* e = InputCourse();
 		addCourse(listCourses,e);
 		write_course();
-		Course* tmp = listCourses.pHead;
-		while (tmp != NULL) {
+		string a = semesterPath + "/Courses/" + e->coursename + ".csv";
+		ofstream out(a);
+		out.close();
+		/*Course* tmp = listCourses.pHead;*/
+		/*while (tmp != NULL) {
 			string a = semesterPath + "/Courses/" + tmp->coursename + ".csv";
-			ofstream out(a);
-			out.close();
+			if (!isFileExists(a)) {
+				ofstream out(a);
+				out.close();
+			}
+			
 			tmp = tmp->next;
-		}
+		}*/
 		string b;
 		gotoXY(19, 53);
 		cout << "File Students enrolled: ";
 		getline(cin, b);
-		Copyfile(b, semesterPath + "/Courses/" + e->coursename + ".csv");
+		Copyfile(b, a);
 		ListStudent ss;
 		initStudent(ss);
-		ifstream i(semesterPath + "/Courses/" + e->coursename + ".csv");
 		ofstream o1(semesterPath + "/Mark/" + e->coursename + "-mark.csv");
 		o1.close();
+		ifstream i(semesterPath + "/Courses/" + e->coursename + ".csv");
 		ofstream o(semesterPath + "/Mark/" + e->coursename + "-mark.csv");
 		getline(i, s);
 		while (!i.eof()) {
@@ -1203,10 +1414,10 @@ void AddOneCourse() {
 		}
 		i.close();
 		int stt = 1;
-		o << "No,ID,Full name,OtherMark,MidMark,FinalMark,AverageMark" << endl;
+		o << "No,ID,Last name,First name,OtherMark,MidMark,FinalMark,AverageMark" << endl;
 		Student* r = ss.pHead;
 		while (r != NULL) {
-			o << stt << "," << r->studentID << "," << r->lastName+" " + r->firstName;
+			o << stt << "," << r->studentID << "," << r->lastName<<"," << r->firstName;
 			if (r->next != NULL) o << endl;
 			r = r->next;
 			stt++;
@@ -1302,7 +1513,7 @@ void ImportScoreBoard(Course*course) {
 		gotoXY(yPos - 7, 59); cout << "HCMUS Portal";
 		gotoXY(yPos - 5, 57); cout << "Import ScoreBoard";
 		drawBox(width, height, left, top);
-		gotoXY(yPos, 55); cout << "File ScoreBoard: ";
+		gotoXY(yPos, 47); cout << "File ScoreBoard: ";
 		string b;
 		getline(cin, b);
 		string a = semesterPath + "/Mark/" + course->coursename + "-mark.csv";
@@ -1311,21 +1522,67 @@ void ImportScoreBoard(Course*course) {
 		return;
 	} while (1);
 }
-void ViewListScoreBoard() {
-
-	const int width = 45;
-	const int height = 6;
-	const int left = 45;
+void StudentListOfCourse() {
+	const int width = 64;
+	int height = 10;
+	const int left = 28;
 	const int top = 8;
-
 	int curPos = 0;
-	int yPos = 12;
+	int yPos = 13;
+	int numberPages;
+	int page = 1;
+	int i = 0;
+	int no;
+	string b = semesterPath + "/Student/" + currentUser->ID + ".csv";
+	ListCourse list = get(b);
 	do {
-		
-		return;
-	} while (1);
-
-
+		numberPages = (list.size / 10) + 1;
+		i = 0;
+		height = 9;
+		system("cls");
+		gotoXY(5, 55); cout << "HCMUS Portal";
+		gotoXY(7, 58); cout <<"List of Course";
+		gotoXY(10, 36); cout << "No";
+		gotoXY(10, 42); cout << "Course Name";
+		gotoXY( 10,60); cout << "Other";
+		gotoXY(10,67); cout << "Midterm";
+		gotoXY(10,76); cout << "Final";
+		gotoXY(10,83); cout << "Total";
+		if (list.pHead != NULL) {
+			Course* temp = list.pHead;
+			for (int i = 0; i < (page - 1) * 10; i++) {
+				temp = temp->next;
+			}
+			while (i < 10 && temp != NULL) {
+				no = (page - 1) * 10 + i + 1;
+				gotoXY(yPos, 36); cout << no;
+				gotoXY(yPos,42); cout << temp->coursename;
+				gotoXY(yPos, 60); cout << temp->mark.OtherMark;
+				gotoXY(yPos, 67); cout << temp->mark.MidMark;
+				gotoXY(yPos, 76); cout << temp->mark.FinalMark;
+				gotoXY(yPos, 83); cout << temp->mark.AverageMark;
+				yPos++;
+				i++;
+				temp = temp->next;
+			}
+			height += i;
+			drawBox(width, height, left, top);
+			yPos++;
+			gotoXY(yPos, 58);
+			if (page > 1) cout << char(174);
+			cout << char(174) << "  " << page << "  " << char(175);
+			if (page < numberPages) cout << char(175);
+			yPos++;
+			gotoXY(yPos, 59); cout << "Back";
+			gotoXY(curPos + yPos, 57); cout << cursorLeft;
+			gotoXY(curPos + yPos, 64); cout << cursorRight;
+			yPos = 12;
+		}
+		else {
+			notifyBox("Empty List...");
+			return;
+		}
+	} while (viewCoursesCommand(curPos, 0, 0, page, numberPages, viewListOfStudentOption));
 }
 
 void viewScoreboard(Course* course) {
@@ -1614,17 +1871,17 @@ void updateStudentResult(Student* student) {
 	const int left = 45;
 	const int top = 8;
 	int curPos = 0;
-
+	string s;
 	ShowCur(1);
 	system("cls");
 	textAlignCenter("HCMUS Portal", left, width, 5);
 	textAlignCenter("Update Student Result", left, width, 7);
 	drawBox(width, height, left, top);
 	textAlignCenter(student->lastName + " " + student->firstName, left, width, 9);
-	gotoXY(11, 50); cout << "Other Mark: "; cin >> student->courseMark.OtherMark;
-	gotoXY(12, 50); cout << "Midterm Mark: "; cin >> student->courseMark.MidMark;
-	gotoXY(13, 50); cout << "Final Mark: "; cin >> student->courseMark.FinalMark;
-	gotoXY(14, 50); cout << "Total Mark: "; cin >> student->courseMark.AverageMark;
+	gotoXY(11, 50); cout << "Other Mark: "; getline(cin, s); student->courseMark.OtherMark = stof(s);
+	gotoXY(12, 50); cout << "Midterm Mark: "; getline(cin, s);  student->courseMark.MidMark=stof(s);
+	gotoXY(13, 50); cout << "Final Mark: ";  getline(cin, s);  student->courseMark.FinalMark = stof(s);
+	gotoXY(14, 50); cout << "Total Mark: ";  getline(cin, s);  student->courseMark.AverageMark = stof(s);
 	ShowCur(0);
 }
 
@@ -1673,7 +1930,7 @@ void updateCourse(Course* course) {
 		}
 		yPos = 10;
 	} while (updateCourseCommand(curPos, 0, 7, course, updateCourseOption));
-
+	
 	write_course();
 }
 void viewCourses() {
@@ -1942,6 +2199,7 @@ int managerStudentOption(int curPos) {
 	switch (curPos) {
 	case 0:
 		create_folder_SchoolYear();
+		notifyBox("Create Success!!!");
 		break;
 	case 1:
 		createNewClass();
@@ -1982,6 +2240,7 @@ int staffOption(int curPos) {
 	}
 	return 1;
 }
+
 int selectAddstudentOPtion(int curPos) {
 	switch (curPos) {
 	case 0:
@@ -2075,7 +2334,7 @@ int viewListOfStudentOption(int curPos, int page) {
 }
 int viewCourseOption(int curPos, int page) {
 	int count = 0;
-
+	getListCourses();
 	Course* temp = listCourses.pHead;
 	for (int i = 0; i < (page - 1) * 10; i++) {
 		temp = temp->next;
@@ -2109,7 +2368,7 @@ int manageCoursesOption(int curPos) {
 		viewCourses();
 		break;
 	case 3:
-	
+		SemesterSummary();
 		break;
 	case 4:
 		return 0;
@@ -2123,6 +2382,7 @@ int updateCourseOption(int curPos, Course* course) {
 	{
 	case 0:
 		courseDetail(course);
+		
 		return 1;
 		break;
 	
@@ -2151,8 +2411,10 @@ int updateCourseOption(int curPos, Course* course) {
 		return 1;
 		break;
 	case 7:
+	
 		break;
 	}
+	
 	write_course();
 	return 0;
 }
@@ -2184,6 +2446,26 @@ int viewScoreboardOption(int curPos, int page, ListStudent list, Course course) 
 	}
 	else {
 		updateStudentResult(studentSelected);
+	}
+	return 1;
+}
+
+int studentOption(int curPos) {
+	switch (curPos) {
+	case 0:
+		UserAccount();
+		break;
+	case 1:
+		Profile();
+		break;
+	case 2:
+		StudentListOfCourse();
+		break;
+	case 3:
+		/*viewScoreboard();*/
+		break;
+	case 4:
+		exit(0);
 	}
 	return 1;
 }

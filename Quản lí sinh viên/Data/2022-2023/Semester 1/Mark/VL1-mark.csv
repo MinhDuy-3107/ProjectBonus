@@ -1,23 +1,23 @@
-No,Student Id,Last name,First name,OtherMark,MidMark,FinalMark,AverageMark
-1,20120002,Nguyen Thai,Chung,7,8,6,8.5
-2,20120007,Do Trung,Hieu,7,8,7,8.5
-3,20120009,Nguyen Van,Hung,7,8,6,8.5
+No,ID,Last name,First name,OtherMark,MidMark,FinalMark,AverageMark
+1,20120002,Nguyen Thai,Chung,7,8,9,8.5
+2,20120007,Do Trung,Hieu,7,8,9,8.5
+3,20120009,Nguyen Van,Hung,7,8,9,8.5
 4,20120010,Nguyen Duc,Huy,7,8,9,8.5
 5,20120011,Nguyen Hoang,Huy,7,8,9,8.5
 6,20120012,Nguyen Pham Nhat,Huy,7,8,9,8.5
-7,20120013,Trinh Quoc,Huy,7,8,9,10
-8,20120014,Vuong Gia,Huy,7,8,9,5
-9,20120015,Ly Hoang,Khai,7,8,9,6
-10,20120017,Phan Quoc,Ky,7,8,9,7
-11,20120018,Tran Kieu Minh,Lam,7,8,9,4
-12,20120019,Nguyen Duc,Manh,7,8,9,3
-13,20120020,Huynh Duc,Nham,7,8,9,8.3
-14,20120021,Ho Van,Son,7,8,8,9.8
+7,20120013,Trinh Quoc,Huy,7,8,9,8.5
+8,20120014,Vuong Gia,Huy,7,8,9,8.5
+9,20120015,Ly Hoang,Khai,7,8,9,8.5
+10,20120017,Phan Quoc,Ky,7,8,9,8.5
+11,20120018,Tran Kieu Minh,Lam,7,8,9,8.5
+12,20120019,Nguyen Duc,Manh,7,8,9,8.5
+13,20120020,Huynh Duc,Nham,7,8,9,8.5
+14,20120021,Ho Van,Son,7,8,9,8.5
 15,20120022,Le Quang,Tri,7,8,9,8.5
 16,20120023,Bui Quoc,Trung,7,8,9,8.5
 17,20120024,Huynh Minh,Tuan,7,8,9,8.5
 18,20120025,Hoang Trong,Vu,7,8,9,8.5
-19,20120027,Le Hai,Duy,10,10,10,10
+19,20120027,Le Hai,Duy,7,8,9,8.5
 20,20120028,Huynh Le,An,7,8,9,8.5
 21,20120029,Nguyen Minh,An,7,8,9,8.5
 22,20120030,Nguyen Thien,An,7,8,9,8.5
