@@ -7,8 +7,10 @@
 
 int main() {
 	
+	while (1) {
+		LoginSystem();
+	}
 	
-	LoginSystem();
 
 	
 
