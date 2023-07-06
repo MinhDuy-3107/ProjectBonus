@@ -63,10 +63,7 @@ struct Semester {
 	int Semester;
 	Date start, end;
 };
-struct semesterMark{
-	float GPA;
-	float overrallGPA;
-};
+
 struct Student {
 	string studentID;
 	string lastName;
@@ -76,16 +73,16 @@ struct Student {
 	Date dateOfBirth;
 	int academicYear;
 	CourseMark courseMark;
-	semesterMark semesterMark;
+	
 	Student* prev;
 	Student* next;
 };
 struct ListStudent {
 	Student* pHead;
 	Student* pTail;
-	string program;
+	
 	string className;
-	string year;
+	
 	int academicYear;
 	int size;
 };
@@ -108,7 +105,6 @@ struct Course {
 	ListStudent l;
 	int credits;
 	int maxstudents = 50;
-	int numberregistered = 0;
 	int academicyear;
 	string dayofweek;
 	string session;
