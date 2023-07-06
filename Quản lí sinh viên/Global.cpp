@@ -849,113 +849,10 @@ void write_course() {
 	out.close();
 	
 }
-void List_Courses(ListCourse l) {
-	Course* tmp = l.pHead;
-	
-	while (tmp != NULL) {
-		string a = semesterPath + "/Courses/" + tmp->ID + ".csv";
-		ofstream out(a, ios::out);
-		out.close();
-		tmp = tmp->next;
-	}
-}
-void Display_Course(ListCourse l) {
-	Course* tmp = l.pHead;
-	
-	while (tmp != NULL) {
-		cout << tmp->coursename << "\t" << tmp->classname;
-		tmp = tmp->next;
-	}
-}
-void add_student_to_course(Student *a,string CourseId) {
-	Course* tmp = listCourses.pHead;
-	while (tmp != NULL) {
-		if (tmp->ID == CourseId) {
-			break;
-		}
-		tmp = tmp->next;
-	}
-	
-	string name = semesterPath + "/Courses/" + CourseId + ".csv";
-	ifstream fin;
-	fin.open(name, ios::in);
-	string temp;
-	getline(fin, temp);
-	initStudent(tmp->l);
-	while (!fin.eof()) {
-		addStudent(tmp->l, convertStudentData(fin));
-	}
-	fin.close();
-	addStudent(tmp->l, a);
-	
-	ofstream out(name, ios::out);
-	if (!out.is_open()) return;
-	
-	Student* tmp1 = tmp->l.pHead;
-	int stt = 1;
-	out << "No,Student ID,Last name,First name,Gender,Date of Birth,Social ID" << endl;
-	while (tmp1 != NULL) {
-		out << stt << ",";
-		stt++;
-		out << tmp1->studentID << ",";
-		out << tmp1->lastName << ",";
-		out << tmp1->firstName << ",";
-		out << tmp1->gender << ",";
-		string date = Datetostring(tmp1->dateOfBirth);
-		out << date << ",";
-		out << tmp1->socialID;
-		out << endl;
-		tmp1 = tmp1->next;
-	}
-	out.close();
-}
-void remove_student_from_course(string id, string CourseId) {
-	Course* tmp = listCourses.pHead;
-	while (tmp != NULL) {
-		if (tmp->ID == CourseId) {
-			break;
-		}
-		tmp = tmp->next;
-	}
 
-	string name = semesterPath + "/Courses/" + CourseId + ".csv";
-	ifstream fin;
-	fin.open(name, ios::in);
-	string temp;
-	getline(fin, temp);
-	initStudent(tmp->l);
-	while (!fin.eof()) {
-		addStudent(tmp->l, convertStudentData(fin));
-	}
-	fin.close();
-	Student* tm = tmp->l.pHead;
-	while (tm != NULL) {
-		if (tm->studentID == id) break;
-		tm = tm->next;
-	}
-	removeStudent(tmp->l, tm);
 
-	ofstream out(name, ios::out);
-	if (!out.is_open()) return;
 
-	Student* tmp1 = tmp->l.pHead;
-	int stt = 1;
-	out << "No,Student ID,Last name,First name,Gender,Date of Birth,Social ID" << endl;
-	while (tmp1 != NULL) {
-		out << stt << ",";
-		stt++;
-		out << tmp1->studentID << ",";
-		out << tmp1->lastName << ",";
-		out << tmp1->firstName << ",";
-		out << tmp1->gender << ",";
-		string date = Datetostring(tmp1->dateOfBirth);
-		out << date << ",";
-		out << tmp1->socialID;
-		out << endl;
-		tmp1 = tmp1->next;
-	}
-	out.close();
-}
+
 void remove_course(Course*course) {
 	string tmp;
 	ListStudent l;
@@ -970,35 +867,10 @@ void remove_course(Course*course) {
 	remove(a.c_str());
 	a = semesterPath + "/Mark/" + course->coursename + "-mark.csv";
 	remove(a.c_str());
-	while (l.pHead != NULL) {
-		ListCourse m;
-		a = semesterPath + "/Student/" + l.pHead->studentID + ".csv";
-		m=get(a);
-		m.pHead=deleteCourse(m.pHead, course->coursename);
-		write(m, a);
-		l.pHead->next;
-
-	}
 	
 	removeCourse(listCourses, course);
 }
-ListCourse Student_Display() {
-	Course* tmp = listCourses.pHead;
-	ListCourse list;
-	initCourse(list);
-	//initCourse(currentUser->list);
-	while (tmp != NULL) {
-		Student* tm = tmp->l.pHead;
-		while (tm != NULL) {
-			if (currentUser->ID == tm->studentID) {
-				addCourse(list, tmp);
-			}
-			tm = tm->next;
-		}
-		tmp = tmp->next;
-	}
-	return list;
-}
+
 void saveScoreboard(ListStudent list, Course course) {
 	ofstream fout(semesterPath + "/Mark/" + course.coursename + "-mark.csv");
 	fout << "No,Student Id,Last name,First name,OtherMark,MidMark,FinalMark,AverageMark" << endl;
@@ -1060,71 +932,6 @@ void SemesterSummary() {
 	}
 	loading("Calculate");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1308,8 +1115,9 @@ void LoginSystem() {
 	currentUser = login(id, pass);
 	if (currentUser == NULL) {
 		gotoXY(26, 35);
-		cout << "Login Fail!!";
-		exit(0);
+		notifyBox("Login Fail!!!!");
+		system("cls");
+		ShowCur(1);
 	}
 	else {
 		notifyBox("Login Success!!!");
