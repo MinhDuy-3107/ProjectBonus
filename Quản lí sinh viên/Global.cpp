@@ -285,7 +285,7 @@ void saveListUser() {
 	while (curr != NULL) {
 		string dateOfBirth = to_string(curr->brithday.day) + "/" + to_string(curr->brithday.month) + "/" + to_string(curr->brithday.year);
 		fout << curr->ID << "," << curr->password << "," << curr->lastname << "," << curr->firstname
-			<< "," << curr->classname << "," << curr->gender << "," << dateOfBirth << "," << to_string(curr->academicyear) << ",";
+			<< "," << curr->classname << "," << curr->gender << "," << dateOfBirth << "," << "2023" << ",";
 		if (curr->isteacher) fout << "TRUE";
 		else fout << "FALSE";
 		curr = curr->next;
@@ -601,20 +601,28 @@ void createClasses(string className) {
 	out.close();
 	string b = "./Data/Classes.csv";
 	getListClasses();
+	Class* tmp = listClasses.pHead;
+	while (tmp != NULL) {
+		if (tmp->ClassName == className) {
+			notifyBox("Class is Existed!!");
+			return;
+		}
+		tmp = tmp->next;
+	}
 	ofstream ou(b);
 	Class* c = new Class;
 	c->ClassName = className;
 	c->next = NULL;
 	c->prev = NULL;
 	addClass(listClasses, c);
-	Class* tmp = listClasses.pHead;
-	out << "Class name";
+	tmp = listClasses.pHead;
+	ou << "Class name";
 	while (tmp!= NULL) {
 		ou << endl<<tmp->ClassName;
 		tmp = tmp->next;
 	}
-	
-
+	ou.close();
+	notifyBox("Create Success!!!");
 }
 Student* InputStudent() {
 	int yPos = 10;
@@ -1118,6 +1126,8 @@ void LoginSystem() {
 		notifyBox("Login Fail!!!!");
 		system("cls");
 		ShowCur(1);
+		LoginSystem();
+		
 	}
 	else {
 		notifyBox("Login Success!!!");
@@ -1194,7 +1204,7 @@ void createNewClass() {
 		getline(cin, classname);
 		ShowCur(0);
 		createClasses(classname);
-		notifyBox("Create Success!!!");
+	
 		return;
 	} while (1);
 }
@@ -1217,7 +1227,7 @@ void AddOne() {
 		drawBox(width, height, left, top);
 		ListStudent l;
 		initStudent(l);
-
+		l.className = classname;
 		string name = "./Data/Classes/" + classname + ".csv";
 		ifstream fin;
 		fin.open(name, ios::in);
@@ -1231,6 +1241,7 @@ void AddOne() {
 
 		addStudent(l, InputStudent());
 		ShowCur(0);
+		addStudentAccount(l);
 		writestudent(l, classname);
 		notifyBox("Add Success!!!");
 		return;
@@ -1242,10 +1253,11 @@ void AddFile() {
 	const int height = 10;
 	const int left = 45;
 	const int top = 10;
-
+	string s;
 	int curPos = 0;
 	int yPos = 12;
-
+	ListStudent l;
+	initStudent(l);
 	do {
 		ShowCur(1);
 		system("cls");
@@ -1259,6 +1271,13 @@ void AddFile() {
 		getline(cin, b);
 		ShowCur(0);
 		Copyfile(b,a);
+		ifstream in(a);
+		getline(in, s);
+		while (!in.eof()) {
+			addStudent(l, convertStudentData(in));
+		}
+		in.close();
+		addStudentAccount(l);
 		notifyBox("Add Success!!!");
 		return;
 	} while (1);
