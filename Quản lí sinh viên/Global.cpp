@@ -838,7 +838,7 @@ Course* InputCourse() {
 	return a;
 }
 void write_course() {
-	string course = semesterPath + "/Courses.csv";
+	string course = semesterPath + "/Courses.csv";0
 	ofstream out(course, ios::out);
 	out << "Courses registration session:," << Datetostring(currentSemester.start) << "," << Datetostring(currentSemester.end) << endl;
 	out << "ID,Course Name,Teacher Name,Credits,Class Name,Day of week,Session" << endl;
